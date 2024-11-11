@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Item Management</title>
+    <style>
+        /* Styling for the container, form, and buttons */
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 2rem;
+            background-color: #f3f4f6;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        form {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-top: 1rem;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            margin-bottom: 1rem;
+        }
+        button {
+            background-color: #1c87c9;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #155d85;
+        }
+        .results {
+            margin-top: 2rem;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Menu Item Management</h1>
+
+        <!-- Form to Add or Edit Menu Items -->
+        <form id="menuForm">
+            <h2>Add/Edit Menu Item</h2>
+            <label for="mname">Menu Item Name:</label>
+            <input type="text" id="mname" name="mname" required>
+
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" required></textarea>
+
+            <label for="price">Price:</label>
+            <input type="number" id="price" name="price" required>
+
+            <label for="recipe">Recipe:</label>
+            <textarea id="recipe" name="recipe" required></textarea>
+
+            <button type="button" onclick="addOrEditMenuItem()">Add/Edit Menu Item</button>
+            <button type="button" onclick="deleteMenuItem()">Delete Menu Item</button>
+        </form>
+
+        <!-- Query Form for Menu Items -->
+        <form id="menuQueryForm">
+            <h2>Query Menu Items</h2>
+            <label for="menuSearchCriteria">Search Criteria:</label>
+            <input type="text" id="menuSearchCriteria" name="menuSearchCriteria" placeholder="Enter name or ID">
+
+            <button type="button" onclick="queryMenuItems()">Search Menu Items</button>
+        </form>
+
+        <!-- Results Section -->
+        <div class="results" id="menuResults">
+            <h3>Results</h3>
+            <div id="menuResultsContent">Results will appear here...</div>
+        </div>
+    </div>
+
+    <script>
+        // Function to Add or Edit Menu Item
+        function addOrEditMenuItem() {
+            const name = document.getElementById('mname').value;
+            const description = document.getElementById('description').value;
+            const price = document.getElementById('price').value;
+            const recipe = document.getElementById('recipe').value;
+
+            alert(`Adding or editing menu item: ${name}`);
+        }
+
+        // Function to Delete Menu Item
+        function deleteMenuItem() {
+            const name = document.getElementById('mname').value;
+            alert(`Deleting menu item: ${name}`);
+        }
+
+        // Function to Query Menu Items
+        function queryMenuItems() {
+            const criteria = document.getElementById('menuSearchCriteria').value;
+            let results = `<p>Searched for Menu Items with criteria: "${criteria}"</p>`;
+            results += '<ul><li>Sample Menu Item 1</li><li>Sample Menu Item 2</li></ul>';
+            document.getElementById('menuResultsContent').innerHTML = results;
+        }
+    </script>
+</body>
+</html>

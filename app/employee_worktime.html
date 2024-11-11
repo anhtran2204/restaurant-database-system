@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Worktime Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f3f4f6;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 2rem;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #1c87c9;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        form {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-top: 1rem;
+        }
+        input {
+            width: 100%;
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            margin-bottom: 1rem;
+        }
+        button {
+            background-color: #1c87c9;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #155d85;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            padding: 0.75rem;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Employee Worktime Management</h1>
+
+        <!-- Add/Edit Employee Worktime Entry Form -->
+        <form id="worktimeForm">
+            <h2 id="formTitle">Add Employee Worktime</h2>
+            <input type="hidden" id="worktimeID" name="worktimeID"> <!-- Hidden field for edit mode -->
+
+            <label for="employeeName">Employee Name:</label>
+            <input type="text" id="employeeName" name="employeeName" required>
+
+            <label for="clockedIn">Clock In Time:</label>
+            <input type="datetime-local" id="clockedIn" name="clockedIn" required>
+
+            <label for="clockedOut">Clock Out Time:</label>
+            <input type="datetime-local" id="clockedOut" name="clockedOut" required>
+
+            <button type="button" onclick="saveWorktimeEntry()">Save Entry</button>
+            <button type="button" onclick="cancelEdit()" style="display: none;" id="cancelButton">Cancel Edit</button>
+        </form>
+
+        <!-- Worktime Table -->
+        <table id="worktimeTable">
+            <thead>
+                <tr>
+                    <th>Worktime ID</th>
+                    <th>Employee Name</th>
+                    <th>Clocked In</th>
+                    <th>Clocked Out</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="worktimeEntries">
+                <!-- Worktime data will be injected here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Sample worktime data for demonstration
+        let worktimes = [
+            { id: "001", employeeName: "Alice Smith", clockedIn: "2024-10-24T08:00", clockedOut: "2024-10-24T16:00" }
+        ];
+        let editMode = false;
+
+        function renderWorktimeList() {
+            const worktimeEntries = document.getElementById('worktimeEntries');
+            worktimeEntries.innerHTML = ""; // Clear the table
+
+            worktimes.forEach(entry => {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${entry.id}</td>
+                    <td>${entry.employeeName}</td>
+                    <td>${entry.clockedIn}</td>
+                    <td>${entry.clockedOut}</td>
+                    <td class="actions">
+                        <button onclick="editWorktimeEntry('${entry.id}')">Edit</button>
+                        <button onclick="deleteWorktimeEntry('${entry.id}')">Delete</button>
+                    </td>
+                `;
+                
+                worktimeEntries.appendChild(row);
+            });
+        }
+
+        function saveWorktimeEntry() {
+            const id = document.getElementById('worktimeID').value;
+            const employeeName = document.getElementById('employeeName').value;
+            const clockedIn = document.getElementById('clockedIn').value;
+            const clockedOut = document.getElementById('clockedOut').value;
+
+            if (editMode) {
+                const entry = worktimes.find(entry => entry.id === id);
+                if (entry) {
+                    entry.employeeName = employeeName;
+                    entry.clockedIn = clockedIn;
+                    entry.clockedOut = clockedOut;
+                }
+                cancelEdit();
+            } else {
+                const newEntry = {
+                    id: String(worktimes.length + 1).padStart(3, '0'),
+                    employeeName,
+                    clockedIn,
+                    clockedOut
+                };
+                worktimes.push(newEntry);
+            }
+            renderWorktimeList();
+            document.getElementById('worktimeForm').reset();
+        }
+
+        function editWorktimeEntry(id) {
+            const entry = worktimes.find(entry => entry.id === id);
+            if (entry) {
+                document.getElementById('worktimeID').value = entry.id;
+                document.getElementById('employeeName').value = entry.employeeName;
+                document.getElementById('clockedIn').value = entry.clockedIn;
+                document.getElementById('clockedOut').value = entry.clockedOut;
+                
+                document.getElementById('formTitle').textContent = "Edit Worktime Entry";
+                document.getElementById('cancelButton').style.display = "inline";
+                editMode = true;
+            }
+        }
+
+        function cancelEdit() {
+            document.getElementById('worktimeForm').reset();
+            document.getElementById('formTitle').textContent = "Add Employee Worktime";
+            document.getElementById('cancelButton').style.display = "none";
+            editMode = false;
+        }
+
+        function deleteWorktimeEntry(id) {
+            worktimes = worktimes.filter(entry => entry.id !== id);
+            renderWorktimeList();
+        }
+
+        renderWorktimeList();
+    </script>
+</body>
+</html>
