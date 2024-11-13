@@ -1,100 +1,99 @@
--- Team14, CS4347
 DROP DATABASE IF EXISTS `Restaurant`;
 CREATE DATABASE `Restaurant`;
 USE `Restaurant`;
 
+-- Create Employees table
 CREATE TABLE Employees (
     ID INT NOT NULL,
     fname VARCHAR(15) NOT NULL,
     minit CHAR(1),
     lname VARCHAR(15) NOT NULL,
-    dob DATE,                       -- Added Date of Birth
-    position VARCHAR(30),           -- Added Position
-    hoursPerWeek INT,               -- Added Hours Per Week
-    ManagerID INT DEFAULT NULL,
-    Salary INT DEFAULT NULL,
-    Rate DECIMAL(4,2) DEFAULT NULL,
-    PRIMARY KEY (ID),
-    FOREIGN KEY (ManagerID) REFERENCES Employees(ID)
-        ON DELETE SET NULL ON UPDATE CASCADE,
-    CONSTRAINT CHK_HRS CHECK (hoursPerWeek >= 0)
+    dob DATE,
+    position VARCHAR(20),
+    hoursPerWeek INT,
+    Salary INT,
+    Rate DECIMAL(5, 2),
+    PRIMARY KEY (ID)
 );
 
+-- Create Manages table
 CREATE TABLE Manages (
-	ManagerID		INT			NOT NULL,
-    EmployeeID		INT			NOT NULL,
-    PRIMARY KEY(ManagerID, EmployeeID),
-	FOREIGN KEY(ManagerID) REFERENCES Employees(ID)
-    	ON DELETE CASCADE 		ON UPDATE CASCADE,
-	FOREIGN KEY(EmployeeID) REFERENCES Employees(ID)
-		ON DELETE CASCADE		ON UPDATE CASCADE
+    ManagerID INT NOT NULL,
+    EmployeeID INT NOT NULL,
+    PRIMARY KEY (ManagerID, EmployeeID),
+    FOREIGN KEY (ManagerID) REFERENCES Employees(ID) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (EmployeeID) REFERENCES Employees(ID) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+-- Create Schedule table
 CREATE TABLE Schedule (
-    EntryID         INT             NOT NULL    AUTO_INCREMENT, 
-    EmployeeID      INT             NOT NULL,
-    AvDate          DATE            NOT NULL,                   
-    StartTime       TIME            NOT NULL,                   
-    EndTime         TIME            NOT NULL,                   
-    Status          VARCHAR(9)      NOT NULL,    --  'Available' and 'Scheduled' are 9 characters long
+    EntryID INT NOT NULL AUTO_INCREMENT,
+    EmployeeID INT NOT NULL,
+    AvDate DATE NOT NULL,
+    StartTime TIME NOT NULL,
+    EndTime TIME NOT NULL,
+    Status VARCHAR(10),
     PRIMARY KEY (EntryID),
-    FOREIGN KEY (EmployeeID) REFERENCES Employees(ID)
-    	ON DELETE CASCADE		ON UPDATE CASCADE,
-    CONSTRAINT TIME_CHK CHECK (StartTime < EndTime),
-    CONSTRAINT STATUS_CHK CHECK ((Status = 'Available') OR (Status = 'Scheduled'))
+    FOREIGN KEY (EmployeeID) REFERENCES Employees(ID) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE Clocked_Times (
-  ClockID			INT 		NOT NULL 	AUTO_INCREMENT,		-- unique identifier generated each time
-  EmployeeID		INT			NOT NULL,
-  ClockedStart		TIMESTAMP	NOT NULL,
-  ClockedEnd		TIMESTAMP	NOT NULL,
-  PRIMARY KEY(ClockID),
-  FOREIGN KEY(EmployeeID) REFERENCES Employees(ID)
-  	ON DELETE CASCADE		ON UPDATE CASCADE,
-  CONSTRAINT CHK_TIME CHECK (ClockedStart < ClockedEnd)
+    ClockID INT NOT NULL AUTO_INCREMENT,
+    EmployeeID INT NOT NULL,
+    ClockedStart TIMESTAMP NOT NULL,
+    ClockedEnd TIMESTAMP NOT NULL,
+    PRIMARY KEY (ClockID),
+    FOREIGN KEY (EmployeeID) REFERENCES Employees(ID)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT CHK_TIME CHECK (ClockedStart < ClockedEnd)
 );
 
 CREATE TABLE Cook (
-  EmployeeID		INT 		NOT NULL,
-  Specialty			VARCHAR(15)	NOT NULL,
-  FOREIGN KEY(EmployeeID) REFERENCES Employees(ID)
-  	ON DELETE CASCADE		ON UPDATE CASCADE
+    EmployeeID INT NOT NULL,
+    fname VARCHAR(15) NOT NULL,      -- Adding fname
+    lname VARCHAR(15) NOT NULL,      -- Adding lname
+    Specialty VARCHAR(15) NOT NULL,
+    PRIMARY KEY (EmployeeID),
+    FOREIGN KEY (EmployeeID) REFERENCES Employees(ID)
+        ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE Server (
-  EmployeeID		INT 			NOT NULL,
-  Tips				DECIMAL(5,2)	DEFAULT NULL,
-  FOREIGN KEY(EmployeeID) REFERENCES Employees(ID)
-	ON DELETE CASCADE		ON UPDATE CASCADE
+    EmployeeID INT NOT NULL,
+    fname VARCHAR(15) NOT NULL,      -- Adding fname
+    lname VARCHAR(15) NOT NULL,      -- Adding lname
+    Tips DECIMAL(5,2) DEFAULT NULL,
+    PRIMARY KEY (EmployeeID),
+    FOREIGN KEY (EmployeeID) REFERENCES Employees(ID)
+        ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE RTable (
-	TableNum		INT		NOT NULL,
-    NumSeats		INT		NOT NULL,
-    ServerID		INT		NOT NULL,
-    PRIMARY KEY(TableNum),
-    FOREIGN KEY(ServerID) REFERENCES Server(EmployeeID)
-		ON DELETE CASCADE		ON UPDATE CASCADE
+    TableNum INT NOT NULL,
+    NumSeats INT NOT NULL,
+    ServerID INT NOT NULL,
+    PRIMARY KEY (TableNum),
+    FOREIGN KEY (ServerID) REFERENCES Server(EmployeeID)
+        ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE Waitlist (
-	WaitlistID		INT 			NOT NULL,
-    WaitName		VARCHAR(15)		NOT NULL,
-    HostID			INT				NOT NULL,
-    PRIMARY KEY(WaitlistID),
-    FOREIGN KEY(HostID) REFERENCES Employees(ID)
-		ON DELETE CASCADE		ON UPDATE CASCADE
+    WaitlistID INT NOT NULL,
+    WaitName VARCHAR(15) NOT NULL,
+    HostID INT NOT NULL,
+    PRIMARY KEY (WaitlistID),
+    FOREIGN KEY (HostID) REFERENCES Employees(ID)
+        ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE Reservation (
-	ResID		INT		 	NOT NULL,
-    ResName		VARCHAR(15)	NOT NULL,
-    ResInfo		TIMESTAMP	NOT NULL,
-	HostID		INT				NOT NULL,
-    PRIMARY KEY(ResID),
-    FOREIGN KEY(HostID) REFERENCES Employees(ID)
-		ON DELETE CASCADE		ON UPDATE CASCADE
+    ResID INT NOT NULL,
+    ResName VARCHAR(15) NOT NULL,
+    ResInfo TIMESTAMP NOT NULL,
+    HostID INT NOT NULL,
+    PRIMARY KEY (ResID),
+    FOREIGN KEY (HostID) REFERENCES Employees(ID)
+        ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE Location (

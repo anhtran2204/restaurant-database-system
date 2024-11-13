@@ -2,73 +2,34 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventory Management</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
-        .container {
-            max-width: 800px;
-            margin: auto;
-            padding: 2rem;
-            background-color: #f3f4f6;
-            border-radius: 8px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-        }
-        form {
-            margin-bottom: 2rem;
-            padding: 1.5rem;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            background-color: #fff;
-        }
-        label {
-            display: block;
-            font-weight: bold;
-            margin-top: 1rem;
-        }
-        input {
-            width: 100%;
-            padding: 0.5rem;
-            margin-top: 0.5rem;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            margin-bottom: 1rem;
-        }
-        button {
-            background-color: #1c87c9;
-            color: white;
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: #155d85;
-        }
-        .results {
-            margin-top: 2rem;
-            padding: 1rem;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            background-color: #fff;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- Header -->
+    <header>Restaurant Management System</header>
+
+    <!-- Navigation Bar -->
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="schedule_creation.html">Schedule</a></li>
+            <li><a href="employee_management.html">Employee Management</a></li>
+            <li><a href="employee_worktime.html">Clock In/Out</a></li>
+            <li><a href="inventory_management.html" class="active">Inventory</a></li>
+            <li><a href="menu_management.html">Menu Management</a></li>
+            <li><a href="reservation_form.html">Reservations</a></li>
+            <li><a href="waitlist_form.html">Waitlist</a></li>
+        </ul>
+    </nav>
     <div class="container">
-        <h1>Inventory Management</h1>
-
-        <!-- Form to Add or Edit Ingredients -->
-        <form id="ingredientForm">
-            <h2>Add/Edit Ingredient</h2>
-            <label for="ingredientID">Ingredient ID:</label>
-            <input type="number" id="ingredientID" name="ingredientID" required>
-
+        <h2>Inventory Management</h2>
+        <form id="inventoryForm">
             <label for="ingredientName">Ingredient Name:</label>
             <input type="text" id="ingredientName" name="ingredientName" required>
+
+            <label for="locationID">Location ID:</label>
+            <input type="number" id="locationID" name="locationID" required>
 
             <label for="quantity">Quantity:</label>
             <input type="number" id="quantity" name="quantity" required>
@@ -76,50 +37,25 @@
             <label for="expiration">Expiration Date:</label>
             <input type="date" id="expiration" name="expiration" required>
 
-            <button type="button" onclick="addOrEditIngredient()">Add/Edit Ingredient</button>
-            <button type="button" onclick="deleteIngredient()">Delete Ingredient</button>
+            <button type="button" onclick="saveInventory()">Save Inventory</button>
         </form>
 
-        <!-- Query Form for Ingredients -->
-        <form id="ingredientQueryForm">
-            <h2>Query Ingredients</h2>
-            <label for="ingredientSearchCriteria">Search Criteria:</label>
-            <input type="text" id="ingredientSearchCriteria" name="ingredientSearchCriteria" placeholder="Enter name or ID">
+        <h3>Inventory List</h3>
+        <table id="inventoryTable">
+            <thead>
+                <tr>
+                    <th>Ingredient ID</th>
+                    <th>Ingredient Name</th>
+                    <th>Location ID</th>
+                    <th>Quantity</th>
+                    <th>Expiration Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
 
-            <button type="button" onclick="queryIngredients()">Search Ingredients</button>
-        </form>
-
-        <!-- Results Section -->
-        <div class="results" id="ingredientResults">
-            <h3>Results</h3>
-            <div id="ingredientResultsContent">Results will appear here...</div>
-        </div>
+        <script src="inventory_management.js"></script>
     </div>
-
-    <script>
-        // Function to Add or Edit Ingredient
-        function addOrEditIngredient() {
-            const id = document.getElementById('ingredientID').value;
-            const name = document.getElementById('ingredientName').value;
-            const quantity = document.getElementById('quantity').value;
-            const expiration = document.getElementById('expiration').value;
-
-            alert(`Adding or editing ingredient: ${name}`);
-        }
-
-        // Function to Delete Ingredient
-        function deleteIngredient() {
-            const id = document.getElementById('ingredientID').value;
-            alert(`Deleting ingredient with ID: ${id}`);
-        }
-
-        // Function to Query Ingredients
-        function queryIngredients() {
-            const criteria = document.getElementById('ingredientSearchCriteria').value;
-            let results = `<p>Searched for Ingredients with criteria: "${criteria}"</p>`;
-            results += '<ul><li>Sample Ingredient 1</li><li>Sample Ingredient 2</li></ul>';
-            document.getElementById('ingredientResultsContent').innerHTML = results;
-        }
-    </script>
 </body>
 </html>

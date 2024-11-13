@@ -2,214 +2,59 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reservation Management</title>
-    <style>
-        /* General styling for container, form, buttons, and table */
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f3f4f6;
-            color: #333;
-        }
-        .container {
-            max-width: 800px;
-            margin: auto;
-            padding: 2rem;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            color: #1c87c9;
-            text-align: center;
-            margin-bottom: 1rem;
-        }
-        form {
-            margin-bottom: 2rem;
-            padding: 1.5rem;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            background-color: #fff;
-        }
-        label {
-            display: block;
-            font-weight: bold;
-            margin-top: 1rem;
-        }
-        input {
-            width: 100%;
-            padding: 0.5rem;
-            margin-top: 0.5rem;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            margin-bottom: 1rem;
-        }
-        button {
-            background-color: #1c87c9;
-            color: white;
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: #155d85;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
-        th, td {
-            padding: 0.75rem;
-            text-align: center;
-            border: 1px solid #ddd;
-        }
-        th {
-            background-color: #f0f0f0;
-            font-weight: bold;
-        }
-        .actions {
-            display: flex;
-            gap: 0.5rem;
-            justify-content: center;
-        }
-    </style>
+    <title>Reservation Form</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- Header -->
+    <header>Restaurant Management System</header>
+
+    <!-- Navigation Bar -->
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="schedule_creation.html">Schedule</a></li>
+            <li><a href="employee_management.html">Employee Management</a></li>
+            <li><a href="employee_worktime.html">Clock In/Out</a></li>
+            <li><a href="inventory_management.html">Inventory</a></li>
+            <li><a href="menu_management.html">Menu Management</a></li>
+            <li><a href="reservation_form.html" class="active">Reservations</a></li>
+            <li><a href="waitlist_form.html">Waitlist</a></li>
+        </ul>
+    </nav>
     <div class="container">
-        <h1>Reservation Management</h1>
-
-        <!-- Add/Edit Reservation Form -->
+        <h2>Reservation Form</h2>
         <form id="reservationForm">
-            <h2 id="formTitle">Add New Reservation</h2>
-            <input type="hidden" id="reservationID" name="reservationID"> <!-- Hidden field for edit mode -->
+            <label for="resID">Reservation ID:</label>
+            <input type="number" id="resID" name="resID" required>
 
-            <label for="name">Customer Name:</label>
-            <input type="text" id="name" name="name" required>
+            <label for="resName">Reservation Name:</label>
+            <input type="text" id="resName" name="resName" required>
 
-            <label for="date">Reservation Date:</label>
-            <input type="date" id="date" name="date" required>
+            <label for="resInfo">Reservation Date & Time:</label>
+            <input type="datetime-local" id="resInfo" name="resInfo" required>
 
-            <label for="time">Reservation Time:</label>
-            <input type="time" id="time" name="time" required>
-
-            <label for="guests">Number of Guests:</label>
-            <input type="number" id="guests" name="guests" required>
+            <label for="hostID">Host ID:</label>
+            <input type="number" id="hostID" name="hostID" required>
 
             <button type="button" onclick="saveReservation()">Save Reservation</button>
-            <button type="button" onclick="cancelEdit()" style="display: none;" id="cancelButton">Cancel Edit</button>
         </form>
 
-        <!-- Reservation List Table -->
+        <h3>Reservation List</h3>
         <table id="reservationTable">
             <thead>
                 <tr>
                     <th>Reservation ID</th>
-                    <th>Customer Name</th>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>Guests</th>
+                    <th>Name</th>
+                    <th>Date & Time</th>
+                    <th>Host ID</th>
                     <th>Actions</th>
                 </tr>
             </thead>
-            <tbody id="reservationList">
-                <!-- Reservation data will be injected here -->
-            </tbody>
+            <tbody></tbody>
         </table>
+
+        <script src="reservation_form.js"></script>
     </div>
-
-    <script>
-        // Sample reservation data for demonstration
-        let reservations = [
-            { id: "001", name: "John Doe", date: "2024-10-24", time: "18:30", guests: 4 }
-        ];
-        let editMode = false;
-
-        function renderReservationList() {
-            const reservationList = document.getElementById('reservationList');
-            reservationList.innerHTML = ""; // Clear the table
-
-            reservations.forEach(reservation => {
-                const row = document.createElement('tr');
-                
-                row.innerHTML = `
-                    <td>${reservation.id}</td>
-                    <td>${reservation.name}</td>
-                    <td>${reservation.date}</td>
-                    <td>${reservation.time}</td>
-                    <td>${reservation.guests}</td>
-                    <td class="actions">
-                        <button onclick="editReservation('${reservation.id}')">Edit</button>
-                        <button onclick="deleteReservation('${reservation.id}')">Delete</button>
-                    </td>
-                `;
-                
-                reservationList.appendChild(row);
-            });
-        }
-
-        function saveReservation() {
-            const id = document.getElementById('reservationID').value;
-            const name = document.getElementById('name').value;
-            const date = document.getElementById('date').value;
-            const time = document.getElementById('time').value;
-            const guests = document.getElementById('guests').value;
-
-            if (editMode) {
-                // Edit existing reservation
-                const reservation = reservations.find(res => res.id === id);
-                if (reservation) {
-                    reservation.name = name;
-                    reservation.date = date;
-                    reservation.time = time;
-                    reservation.guests = guests;
-                }
-                cancelEdit();
-            } else {
-                // Add new reservation
-                const newReservation = {
-                    id: String(reservations.length + 1).padStart(3, '0'),
-                    name,
-                    date,
-                    time,
-                    guests
-                };
-                reservations.push(newReservation);
-            }
-            renderReservationList();
-            document.getElementById('reservationForm').reset();
-        }
-
-        function editReservation(id) {
-            const reservation = reservations.find(res => res.id === id);
-            if (reservation) {
-                document.getElementById('reservationID').value = reservation.id;
-                document.getElementById('name').value = reservation.name;
-                document.getElementById('date').value = reservation.date;
-                document.getElementById('time').value = reservation.time;
-                document.getElementById('guests').value = reservation.guests;
-                
-                document.getElementById('formTitle').textContent = "Edit Reservation";
-                document.getElementById('cancelButton').style.display = "inline";
-                editMode = true;
-            }
-        }
-
-        function cancelEdit() {
-            document.getElementById('reservationForm').reset();
-            document.getElementById('formTitle').textContent = "Add New Reservation";
-            document.getElementById('cancelButton').style.display = "none";
-            editMode = false;
-        }
-
-        function deleteReservation(id) {
-            reservations = reservations.filter(reservation => reservation.id !== id);
-            renderReservationList();
-        }
-
-        renderReservationList();
-    </script>
 </body>
 </html>

@@ -4,66 +4,98 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Restaurant Management System</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Link to CSS file -->
+
     <style>
-        /* General Reset */
+        /* Reset */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
-        /* Body and Main Layout */
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f3f4f6;
-            color: #333;
-        }
 
+        /* Header */
         header {
             background-color: #1c87c9;
-            padding: 1rem;
+            padding: 1.5rem;
             text-align: center;
             color: white;
-            font-size: 1.5rem;
+            font-size: 1.8rem;
         }
 
-        /* Horizontal Navigation Bar */
+        /* Navigation Bar */
         nav {
             background-color: #333;
-            color: white;
+            display: flex;
+            justify-content: center;
+            padding: 1.5rem;
         }
 
         nav ul {
             list-style-type: none;
             display: flex;
-            justify-content: center;
+            gap: 1rem;
             padding: 0;
         }
 
-        nav ul li {
-            padding: 1rem 2rem;
-            cursor: pointer;
+        nav ul li a {
+            text-decoration: none;
             color: #ddd;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
             transition: background-color 0.3s;
-            text-align: center;
         }
 
-        nav ul li:hover, nav ul li.active {
+        nav ul li a:hover, nav ul li a.active {
             background-color: #1c87c9;
             color: white;
         }
 
         /* Main Content Area */
-        .main-content {
+        .welcome-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 2rem auto;
+            max-width: 800px;
             padding: 2rem;
-        }
-
-        iframe {
-            width: 100%;
-            height: calc(100vh - 8rem); /* Adjust height to fit the viewport */
-            border: none;
+            background-color: #fff;
             border-radius: 8px;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            font-size: 1.1rem;
+            color: #555;
+            margin-bottom: 2rem;
+        }
+
+        /* Navigation Buttons */
+        .nav-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .nav-buttons a {
+            text-decoration: none;
+            color: white;
+            background-color: #1c87c9;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        .nav-buttons a:hover {
+            background-color: #155d85;
         }
     </style>
 </head>
@@ -71,34 +103,24 @@
     <!-- Header -->
     <header>Restaurant Management System</header>
 
-    <!-- Horizontal Navigation Bar -->
+    <!-- Navigation Bar -->
     <nav>
         <ul>
-            <li onclick="loadForm('schedule_creation.html')">Schedule</li>
-            <li onclick="loadForm('employee_management.html')">Employee Management</li>
-            <li onclick="loadForm('employee_worktime.html')">Clock In/Out</li>
-            <li onclick="loadForm('inventory_management.html')">Inventory</li>
-            <li onclick="loadForm('menu_management.html')">Menu Management</li>
-            <li onclick="loadForm('reservation_form.html')">Reservations</li>
-            <li onclick="loadForm('waitlist_form.html')">Waitlist</li>
+            <li><a href="index.html" class="active">Home</a></li>
+            <li><a href="schedule_creation.html">Schedule</a></li>
+            <li><a href="employee_management.html">Employee Management</a></li>
+            <li><a href="employee_worktime.html">Clock In/Out</a></li>
+            <li><a href="inventory_management.html">Inventory</a></li>
+            <li><a href="menu_management.html">Menu Management</a></li>
+            <li><a href="reservation_form.html">Reservations</a></li>
+            <li><a href="waitlist_form.html">Waitlist</a></li>
         </ul>
     </nav>
 
-    <!-- Main Content Area with Embedded Forms -->
-    <div class="main-content">
-        <iframe id="formFrame" src="schedule_creation.html"></iframe>
+    <!-- Welcome Content -->
+    <div class="welcome-container">
+        <h2>Welcome to the Restaurant Management System</h2>
+        <p>Please choose a section above to manage various aspects of the restaurant, including scheduling, employees, inventory, and reservations.</p>
     </div>
-
-    <!-- JavaScript to Load Forms -->
-    <script>
-        function loadForm(formFile) {
-            document.getElementById('formFrame').src = formFile;
-            // Update active class for navigation
-            document.querySelectorAll('nav ul li').forEach(item => {
-                item.classList.remove('active');
-            });
-            event.target.classList.add('active');
-        }
-    </script>
 </body>
 </html>

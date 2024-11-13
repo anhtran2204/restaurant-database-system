@@ -1,195 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Schedule Creation</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f3f4f6;
-            color: #333;
-        }
-        .container {
-            max-width: 1000px;
-            margin: auto;
-            padding: 2rem;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            color: #1c87c9;
-            text-align: center;
-            margin-bottom: 1rem;
-        }
-        form {
-            margin-bottom: 1rem;
-            display: flex;
-            justify-content: space-between;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-        label {
-            font-weight: bold;
-        }
-        select, input[type="date"] {
-            padding: 0.5rem;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            margin-top: 0.5rem;
-            width: 100%;
-        }
-        button {
-            background-color: #1c87c9;
-            color: white;
-            padding: 0.7rem 1rem;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            width: 100%;
-        }
-        button:hover {
-            background-color: #155d85;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
-        th, td {
-            padding: 0.75rem;
-            text-align: center;
-            border: 1px solid #ddd;
-        }
-        th {
-            background-color: #f0f0f0;
-            font-weight: bold;
-        }
-        .day-off {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-    </style>
+    <title>Employee Weekly Schedule</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
+    <!-- Header -->
+    <header>Restaurant Management System</header>
+
+    <!-- Navigation Bar -->
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="schedule_creation.html" class="active">Schedule</a></li>
+            <li><a href="employee_management.html">Employee Management</a></li>
+            <li><a href="employee_worktime.html">Clock In/Out</a></li>
+            <li><a href="inventory_management.html">Inventory</a></li>
+            <li><a href="menu_management.html">Menu Management</a></li>
+            <li><a href="reservation_form.html">Reservations</a></li>
+            <li><a href="waitlist_form.html">Waitlist</a></li>
+        </ul>
+    </nav>
     <div class="container">
-        <h1>Employee Weekly Schedule</h1>
-        
-        <!-- Filter Form -->
-        <form id="scheduleFilterForm">
-            <div>
-                <label for="location">Location:</label>
-                <select id="location" name="location">
-                    <option value="">Select Location</option>
-                    <option value="location1">Location 1</option>
-                    <option value="location2">Location 2</option>
-                    <!-- Add more locations as needed -->
-                </select>
-            </div>
+        <h2 id="calendarTitle"></h2>
+        <div id="calendarControls">
+            <button onclick="goToThisWeek()">This Week</button>
+            <button onclick="changeWeek(-1)">&#9664; Previous</button>
+            <button onclick="changeWeek(1)">Next &#9654;</button>
+        </div>
 
-            <div>
-                <label for="weekStart">Select Week Start Date:</label>
-                <input type="date" id="weekStart" name="weekStart" required>
-            </div>
-
-            <div>
-                <label for="additionalInfo">Additional Info:</label>
-                <select id="additionalInfo" name="additionalInfo">
-                    <option value="">None</option>
-                    <option value="employeeID">Employee ID</option>
-                    <option value="dob">Date of Birth</option>
-                    <option value="position">Position</option>
-                    <!-- Add more filter options as needed -->
-                </select>
-            </div>
-
-            <div style="flex-basis: 100%;">
-                <button type="button" onclick="generateSchedule()">Generate Schedule</button>
-            </div>
-        </form>
-
-        <!-- Schedule Table -->
-        <table id="scheduleTable">
+        <!-- Calendar Table -->
+        <table id="scheduleTable" class="calendar-table">
             <thead>
                 <tr>
-                    <th>Employee Name</th>
-                    <th id="day1"></th>
-                    <th id="day2"></th>
-                    <th id="day3"></th>
-                    <th id="day4"></th>
-                    <th id="day5"></th>
-                    <th id="day6"></th>
-                    <th id="day7"></th>
+                    <th>Employee</th>
+                    <!-- Days of the week headers will be added dynamically -->
                 </tr>
             </thead>
-            <tbody id="scheduleBody">
-                <!-- Schedule data will be injected here -->
+            <tbody id="calendarBody">
+                <!-- Employee rows with shifts will be populated dynamically -->
             </tbody>
         </table>
     </div>
 
-    <script>
-        function generateSchedule() {
-            // Get the selected week start date
-            const weekStartDate = new Date(document.getElementById('weekStart').value);
-            if (isNaN(weekStartDate)) {
-                alert("Please select a valid week start date.");
-                return;
-            }
-
-            // Set table headers to show dates for each day of the selected week
-            const dayHeaders = ['day1', 'day2', 'day3', 'day4', 'day5', 'day6', 'day7'];
-            dayHeaders.forEach((id, index) => {
-                const date = new Date(weekStartDate);
-                date.setDate(weekStartDate.getDate() + index);
-                document.getElementById(id).textContent = date.toDateString();
-            });
-
-            // Sample employee data for demonstration
-            const employees = [
-                { name: "Alice", id: "001", dob: "1990-02-14", position: "Chef", schedule: ["8:00-16:00", "8:00-16:00", "Off", "8:00-16:00", "8:00-16:00", "Off", "Off"] },
-                { name: "Bob", id: "002", dob: "1985-06-21", position: "Waiter", schedule: ["10:00-18:00", "10:00-18:00", "10:00-18:00", "Off", "10:00-18:00", "Off", "10:00-18:00"] },
-                { name: "Charlie", id: "003", dob: "1992-09-15", position: "Manager", schedule: ["Off", "9:00-17:00", "9:00-17:00", "9:00-17:00", "Off", "9:00-17:00", "Off"] },
-                // Add more employees as needed
-            ];
-
-            // Get the selected additional info option
-            const additionalInfo = document.getElementById('additionalInfo').value;
-
-            // Generate the schedule table rows based on employee data
-            const scheduleBody = document.getElementById('scheduleBody');
-            scheduleBody.innerHTML = ""; // Clear previous rows
-
-            employees.forEach(employee => {
-                const row = document.createElement("tr");
-
-                // Add employee name cell with additional info if selected
-                const nameCell = document.createElement("td");
-                nameCell.textContent = employee.name;
-                if (additionalInfo === "employeeID") {
-                    nameCell.textContent += ` (ID: ${employee.id})`;
-                } else if (additionalInfo === "dob") {
-                    nameCell.textContent += ` (DOB: ${employee.dob})`;
-                } else if (additionalInfo === "position") {
-                    nameCell.textContent += ` (Position: ${employee.position})`;
-                }
-                row.appendChild(nameCell);
-
-                // Add cells for each day's schedule
-                employee.schedule.forEach(day => {
-                    const cell = document.createElement("td");
-                    cell.textContent = day;
-                    if (day === "Off") {
-                        cell.classList.add("day-off");
-                    }
-                    row.appendChild(cell);
-                });
-
-                scheduleBody.appendChild(row);
-            });
-        }
-    </script>
+    <script src="schedule_creation.js"></script>
 </body>
+
 </html>
