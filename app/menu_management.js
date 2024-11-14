@@ -61,3 +61,5 @@ function deleteMenuItem(itemID) {
     })
     .catch(error => console.error('Error deleting menu item:', error));
 }
+
+fetchMenuItems();

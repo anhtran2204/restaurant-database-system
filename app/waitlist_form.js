@@ -59,3 +59,5 @@ function deleteWaitlist(waitlistID) {
     })
     .catch(error => console.error('Error deleting waitlist entry:', error));
 }
+
+fetchWaitlist();

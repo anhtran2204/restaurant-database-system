@@ -83,3 +83,5 @@ function fetchSchedule(startDate, endDate, weekDays) {
 }
 
 document.addEventListener('DOMContentLoaded', renderCalendar);
+
+fetchSchedule(currentWeekStartDate, new Date(currentWeekStartDate), new Date(currentWeekStartDate));

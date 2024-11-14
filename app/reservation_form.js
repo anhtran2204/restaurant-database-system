@@ -59,3 +59,6 @@ function deleteReservation(resID) {
     })
     .catch(error => console.error('Error deleting reservation:', error));
 }
+
+
+fetchReservations();

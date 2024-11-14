@@ -9,6 +9,7 @@ function fetchInventory() {
                 row.innerHTML = `
                     <td>${item.IngredientID}</td>
                     <td>${item.IngredientName}</td>
+                    <td>${item.LocationID}</td>
                     <td>${item.Quantity}</td>
                     <td>${item.Expiration}</td>
                     <td>
@@ -25,6 +26,7 @@ function saveInventoryItem() {
     const inventoryData = {
         IngredientID: document.getElementById('ingredientID').value,
         IngredientName: document.getElementById('ingredientName').value,
+        LocationID: document.getElementById('locationID').value,
         Quantity: document.getElementById('quantity').value,
         Expiration: document.getElementById('expiration').value
     };
@@ -61,3 +63,5 @@ function deleteInventory(ingredientID) {
     })
     .catch(error => console.error('Error deleting inventory item:', error));
 }
+
+fetchInventory();

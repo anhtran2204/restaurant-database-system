@@ -1,5 +1,5 @@
 function fetchWorktime() {
-    fetch('/api/worktime')
+    fetch('/api/worktimes')
         .then(response => response.json())
         .then(data => {
             const tbody = document.querySelector('#worktimeTable tbody');

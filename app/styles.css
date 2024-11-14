@@ -68,6 +68,16 @@ nav ul li a.active {
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
 }
 
+div#calendarControls {
+    display: flex;
+    justify-content: center;
+}
+
+div#calendarControls button {
+    padding: 0.5rem 1rem;
+    margin: 0 0.5rem;
+}
+
 /* Page Title Styling */
 h2 {
     color: #333;

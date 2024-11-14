@@ -30,31 +30,26 @@ function fetchEmployees() {
 // Save or update employee
 function saveEmployee() {
     const formData = new FormData(document.getElementById('employeeForm'));
-    formData.append('availableDates', document.getElementById('availableDates').value);
-    formData.append('workStartTime', document.getElementById('workStartTime').value);
-    formData.append('workEndTime', document.getElementById('workEndTime').value);
-
-    fetch('/api/employees', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === 'success') {
-            alert('Employee added successfully');
-            // Optionally, refresh the employee list here
-        } else {
-            alert('Error adding employee');
-        }
-    })
-    .catch(error => console.error('Error:', error));
+    
+    fetch('/api/employees', { method: 'POST', body: formData })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "success") {
+                alert(data.message);
+                fetchEmployees(); // Refresh employee list
+                document.getElementById('employeeForm').reset(); // Reset the form
+            } else {
+                alert("Error: " + data.message);
+            }
+        })
+        .catch(error => console.error('Error:', error));
 }
 
 
 // Delete employee
 function deleteEmployee(id) {
     if (confirm('Are you sure you want to delete this employee?')) {
-        fetch(`/api/employees?id=${id}`, { method: 'GET' })
+        fetch(`delete_employee.php?id=${id}`, { method: 'GET' })
             .then(() => fetchEmployees())
             .catch(error => console.error('Error:', error));
     }
