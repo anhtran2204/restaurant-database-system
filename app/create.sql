@@ -32,8 +32,16 @@ CREATE TABLE Schedule (
     AvDate DATE NOT NULL,
     StartTime TIME NOT NULL,
     EndTime TIME NOT NULL,
-    Status VARCHAR(10),
+    ShiftType VARCHAR(20) NOT NULL,
     PRIMARY KEY (EntryID),
+    FOREIGN KEY (EmployeeID) REFERENCES Employees(ID) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- Create Availability table
+CREATE TABLE Availability (
+    EmployeeID INT NOT NULL,
+    AvailableDays VARCHAR(100) NOT NULL, -- Comma-separated days (e.g., "Monday,Tuesday")
+    PRIMARY KEY (EmployeeID),
     FOREIGN KEY (EmployeeID) REFERENCES Employees(ID) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -80,11 +88,14 @@ CREATE TABLE RTable (
 CREATE TABLE Waitlist (
     WaitlistID INT NOT NULL,
     WaitName VARCHAR(15) NOT NULL,
+    PhoneNumber VARCHAR(14) NOT NULL, -- For formatted phone numbers like (###) ###-####
+    PartySize INT NOT NULL, -- To store the size of the party
     HostID INT NOT NULL,
     PRIMARY KEY (WaitlistID),
     FOREIGN KEY (HostID) REFERENCES Employees(ID)
         ON DELETE CASCADE ON UPDATE CASCADE
 );
+
 
 CREATE TABLE Reservation (
     ResID INT NOT NULL,

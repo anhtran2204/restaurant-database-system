@@ -30,7 +30,10 @@ VALUES
     (31, 'Robert', 'B', 'Squarepants', '1990-04-12', 'Line Cook', 32, NULL, 18),
     (18, 'Angelica', 'P', 'Vance', '1992-09-18', 'Server', 20, NULL, 16),
     (32, 'Donnie', 'M', 'Key', '1988-07-11', 'Host', 22, NULL, 20),
-    (45, 'Linda', 'S', 'Brown', '1995-02-05', 'Server', 25, NULL, 18);
+    (45, 'Linda', 'S', 'Brown', '1995-02-05', 'Server', 25, NULL, 18),
+    (3, 'Alice', 'A', 'Brown', '1992-08-15', 'Manager', 40, 50000, NULL),
+    (4, 'Jane', 'M', 'Smith', '1985-05-20', 'Chef', 40, 40000, NULL),
+    (5, 'John', 'D', 'Doe', '1990-01-01', 'Server', 40, 30000, NULL);
 
 -- Insert data into Manages table
 INSERT INTO Manages (ManagerID, EmployeeID)
@@ -38,15 +41,22 @@ VALUES
     (28, 32), (28, 18), (30, 29), (28, 45);
 
 -- Insert data into Schedule table
-INSERT INTO Schedule (EntryID, EmployeeID, AvDate, StartTime, EndTime, Status)
+INSERT INTO Schedule (EntryID, EmployeeID, AvDate, StartTime, EndTime, ShiftType)
 VALUES
-    (1, 32, '2024-10-22', '08:30:00', '19:45:00', 'Scheduled'),
-    (2, 32, '2024-10-25', '08:00:00', '15:30:00', 'Available'),
-    (3, 18, '2024-10-23', '09:15:00', '16:45:00', 'Scheduled'), 
-    (4, 45, '2024-10-24', '10:05:00', '18:15:00', 'Available'), 
-    (5, 28, '2024-11-12', '09:00:00', '17:00:00', 'Scheduled'),
-    (6, 29, '2024-11-13', '10:00:00', '18:00:00', 'Scheduled'),
-    (7, 30, '2024-11-14', '08:00:00', '16:00:00', 'Scheduled');
+    (1, 32, '2024-10-22', '08:30:00', '19:45:00', 'Morning'),
+    (2, 32, '2024-10-25', '08:00:00', '15:30:00', 'Dinner'),
+    (3, 18, '2024-10-23', '09:15:00', '16:45:00', 'Morning'), 
+    (4, 45, '2024-10-24', '10:05:00', '18:15:00', 'Morning'), 
+    (5, 28, '2024-11-12', '09:00:00', '17:00:00', 'Dinner'),
+    (6, 29, '2024-11-13', '10:00:00', '18:00:00', 'Morning'),
+    (7, 30, '2024-11-14', '08:00:00', '16:00:00', 'Dinner');
+
+-- Load test data for Availability
+INSERT INTO Availability (EmployeeID, AvailableDays)
+VALUES
+    (3, 'Monday,Tuesday,Wednesday'),
+    (4, 'Thursday,Friday,Saturday'),
+    (5, 'Sunday,Monday');
 
 -- Insert data into Clocked_Times table
 INSERT INTO Clocked_Times (ClockID, EmployeeID, ClockedStart, ClockedEnd)
@@ -77,9 +87,12 @@ VALUES
     (1, 4, 18), (2, 4, 18), (3, 2, 18), (4, 6, 45), (5, 2, 45), (6, 2, 45);  
 
 -- Insert data into Waitlist table
-INSERT INTO Waitlist (WaitlistID, WaitName, HostID)
+INSERT INTO Waitlist (WaitlistID, WaitName, PhoneNumber, PartySize, HostID)
 VALUES
-    (94, 'Marco', 32), (95, 'Reyna', 32), (96, 'Stephen', 32), (97, 'Daphne', 32);
+    (94, 'Marco', '(555) 123-4567', 4, 32),
+    (95, 'Reyna', '(555) 987-6543', 2, 32),
+    (96, 'Stephen', '(555) 456-7890', 3, 32),
+    (97, 'Daphne', '(555) 321-0987', 5, 32);
 
 -- Insert data into Reservation table
 INSERT INTO Reservation (ResID, ResName, ResInfo, HostID)

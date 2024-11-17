@@ -5,15 +5,15 @@ function fetchWorktime() {
             const tbody = document.querySelector('#worktimeTable tbody');
             tbody.innerHTML = '';
             data.forEach(worktime => {
+                const startTime = new Date(worktime.ClockedStart).toLocaleString();
+                const endTime = new Date(worktime.ClockedEnd).toLocaleString();
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${worktime.ClockID}</td>
                     <td>${worktime.EmpID}</td>
                     <td>${worktime.FullName}</td>
-                    <td>${worktime.ClockedStart}</td>
-                    <td>${worktime.ClockedEnd}</td>
+                    <td>${startTime}</td>
+                    <td>${endTime}</td>
                     <td>
-                        <button onclick="editWorktime(${worktime.ClockID})">Edit</button>
                         <button onclick="deleteWorktime(${worktime.ClockID})">Delete</button>
                     </td>
                 `;
@@ -26,12 +26,12 @@ function fetchWorktime() {
 function saveWorktime() {
     const worktimeData = {
         EmpID: document.getElementById('employeeID').value,
-        FullName: document.getElementById('fName').value + " " + document.getElementById('lName').value,
+        FullName: `${document.getElementById('fName').value} ${document.getElementById('lName').value}`,
         ClockedStart: document.getElementById('clockedStart').value,
         ClockedEnd: document.getElementById('clockedEnd').value
     };
 
-    fetch('/api/worktime', {
+    fetch('/api/worktimes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(worktimeData)
@@ -49,19 +49,17 @@ function saveWorktime() {
 }
 
 function deleteWorktime(clockID) {
-    fetch(`/api/worktime/${clockID}`, {
-        method: 'DELETE'
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === 'success') {
-            alert('Worktime deleted successfully');
-            fetchWorktime();
-        } else {
-            alert('Error deleting worktime');
-        }
-    })
-    .catch(error => console.error('Error deleting worktime:', error));
+    fetch(`/api/worktimes/${clockID}`, { method: 'DELETE' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert('Worktime deleted successfully');
+                fetchWorktime();
+            } else {
+                alert('Error deleting worktime');
+            }
+        })
+        .catch(error => console.error('Error deleting worktime:', error));
 }
 
 // Initialize the worktime table on load

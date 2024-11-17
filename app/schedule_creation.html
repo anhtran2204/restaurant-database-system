@@ -6,6 +6,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employee Weekly Schedule</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Pop-Up Form Styles */
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .popup-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 400px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .close-btn {
+            float: right;
+            cursor: pointer;
+            font-size: 20px;
+            margin-top: -10px;
+        }
+    </style>
 </head>
 
 <body>
@@ -25,6 +56,7 @@
             <li><a href="waitlist_form.html">Waitlist</a></li>
         </ul>
     </nav>
+
     <div class="container">
         <h2 id="calendarTitle"></h2>
         <div id="calendarControls">
@@ -33,19 +65,52 @@
             <button onclick="changeWeek(1)">Next &#9654;</button>
         </div>
 
+        <!-- Add New Availability Button -->
+        <button id="addAvailabilityBtn" onclick="showAddAvailabilityForm()">Add Availability</button>
+
         <!-- Calendar Table -->
         <table id="scheduleTable" class="calendar-table">
             <thead>
                 <tr>
                     <th>Employee</th>
-                    <!-- Days of the week headers will be added dynamically -->
                 </tr>
             </thead>
-            <tbody id="calendarBody">
-                <!-- Employee rows with shifts will be populated dynamically -->
-            </tbody>
+            <tbody id="calendarBody"></tbody>
         </table>
     </div>
+
+    <!-- Pop-Up Form -->
+    <div id="availabilityFormPopup" class="popup-overlay">
+        <div class="popup-content">
+            <span class="close-btn" onclick="closeAddAvailabilityForm()">&times;</span>
+            <h3>Add Employee Availability</h3>
+            <form id="availabilityForm">
+                <label for="employeeID">Employee ID:</label>
+                <input type="number" id="employeeID" name="employeeID" required>
+    
+                <label for="availableDays">Available Days:</label>
+                <div id="availableDays">
+                    <label><input type="checkbox" name="availableDays" value="Monday"> Monday</label>
+                    <label><input type="checkbox" name="availableDays" value="Tuesday"> Tuesday</label>
+                    <label><input type="checkbox" name="availableDays" value="Wednesday"> Wednesday</label>
+                    <label><input type="checkbox" name="availableDays" value="Thursday"> Thursday</label>
+                    <label><input type="checkbox" name="availableDays" value="Friday"> Friday</label>
+                    <label><input type="checkbox" name="availableDays" value="Saturday"> Saturday</label>
+                    <label><input type="checkbox" name="availableDays" value="Sunday"> Sunday</label>
+                </div>
+
+    
+                <label for="shiftType">Shift Type:</label>
+                <select id="shiftType" name="shiftType" required>
+                    <option value="Morning">Morning (10:00 AM - 4:00 PM)</option>
+                    <option value="Dinner">Dinner (4:00 PM - 10:00 PM)</option>
+                </select>
+    
+                <button type="button" onclick="submitAvailabilityForm()">Submit</button>
+            </form>
+        </div>
+    </div>
+    
 
     <script src="schedule_creation.js"></script>
 </body>

@@ -26,28 +26,37 @@
         <h2>Waitlist Form</h2>
         <form id="waitlistForm">
             <label for="waitlistID">Waitlist ID:</label>
-            <input type="number" id="waitlistID" name="waitlistID" required>
-
-            <label for="waitName">Waitlist Name:</label>
-            <input type="text" id="waitName" name="waitName" required>
-
+            <input type="number" id="waitlistID" required>
+        
+            <label for="waitName">Name:</label>
+            <input type="text" id="waitName" required>
+        
+            <label for="phoneNumber">Phone Number:</label>
+            <input type="tel" id="phoneNumber" pattern="\(\d{3}\) \d{3}-\d{4}" placeholder="(###) ###-####" required>
+        
+            <label for="partySize">Party Size:</label>
+            <input type="number" id="partySize" required>
+        
             <label for="hostID">Host ID:</label>
-            <input type="number" id="hostID" name="hostID" required>
-
-            <button type="button" onclick="saveWaitlist()">Save to Waitlist</button>
+            <input type="number" id="hostID" required>
+        
+            <button type="button" onclick="saveWaitlistEntry()">Add to Waitlist</button>
         </form>
-
-        <h3>Waitlist Entries</h3>
+        
         <table id="waitlistTable">
             <thead>
                 <tr>
                     <th>Waitlist ID</th>
                     <th>Name</th>
+                    <th>Phone Number</th>
+                    <th>Party Size</th>
                     <th>Host ID</th>
                     <th>Actions</th>
                 </tr>
             </thead>
-            <tbody></tbody>
+            <tbody>
+                <!-- Data will be dynamically inserted here -->
+            </tbody>
         </table>
 
         <script src="waitlist_form.js"></script>

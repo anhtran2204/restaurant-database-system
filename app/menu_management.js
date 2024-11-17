@@ -7,12 +7,12 @@ function fetchMenuItems() {
             data.forEach(item => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${item.ItemID}</td>
                     <td>${item.Mname}</td>
                     <td>${item.Price}</td>
+                    <td>${item.Recipe}</td>
                     <td>${item.Descr}</td>
                     <td>
-                        <button onclick="deleteMenuItem(${item.ItemID})">Delete</button>
+                        <button onclick="deleteMenuItem(${item.Mname})">Delete</button>
                     </td>
                 `;
                 tbody.appendChild(row);
@@ -23,9 +23,9 @@ function fetchMenuItems() {
 
 function saveMenuItem() {
     const menuData = {
-        ItemID: document.getElementById('itemID').value,
         Mname: document.getElementById('mname').value,
         Price: document.getElementById('price').value,
+        Recipe: document.getElementById('recipe').value,
         Descr: document.getElementById('descr').value
     };
 
