@@ -27,9 +27,28 @@ db.connect((err) => {
 
 // CRUD for Employees
 app.get('/api/employees', (req, res) => {
-    db.query('SELECT * FROM Employees', (err, results) => {
-        if (err) throw err;
+    const sql = 'SELECT * FROM Employees';
+    db.query(sql, (err, results) => {
+        if (err) return res.status(500).json({ error: 'Database query failed' });
         res.json(results);
+    });
+});
+
+// Get a single employee by ID
+app.get('/api/employees/:id', (req, res) => {
+    const { id } = req.params;
+
+    db.query('SELECT * FROM Employees WHERE ID = ?', [id], (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: 'Database query failed.' });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({ error: 'Employee not found.' });
+        }
+
+        res.json(results[0]);
     });
 });
 
@@ -60,14 +79,29 @@ app.post('/api/employees', (req, res) => {
 
 
 app.put('/api/employees/:id', (req, res) => {
-    const { id } = req.params;
-    const data = req.body;
+    const employeeID = req.params.id;
+    const { fname, minit, lname, dob, position, hoursPerWeek, salary, rate } = req.body;
 
-    db.query('UPDATE Employees SET ? WHERE ID = ?', [data, id], err => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: 'Employee updated successfully' });
-    });
+    const sql = `
+        UPDATE Employees 
+        SET fname = ?, minit = ?, lname = ?, dob = ?, position = ?, hoursPerWeek = ?, Salary = ?, Rate = ?
+        WHERE ID = ?
+    `;
+
+    db.query(
+        sql,
+        [fname, minit, lname, dob, position, hoursPerWeek, salary, rate, employeeID],
+        (err, result) => {
+            if (err) {
+                console.error(err);
+                res.status(500).json({ error: 'Failed to update employee' });
+            } else {
+                res.json({ status: 'success' });
+            }
+        }
+    );
 });
+
 
 app.delete('/api/employees/:id', (req, res) => {
     const { id } = req.params;

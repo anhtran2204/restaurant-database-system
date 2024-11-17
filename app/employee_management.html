@@ -85,5 +85,44 @@
         </table>
         <script src="employee_management.js"></script>
     </div>
+    <!-- Add this modal code below the main content -->
+    <!-- Edit Employee Modal -->
+    <!-- Pop-Up Form for Editing Employees -->
+    <div id="employeeEditModal" class="popup-overlay">
+        <div class="popup-content">
+            <span class="close-btn" onclick="closeEditEmployeeModal()">&times;</span>
+            <h3>Edit Employee</h3>
+            <form id="editEmployeeForm">
+                <label for="editEmployeeID">Employee ID:</label>
+                <input type="text" id="editEmployeeID" name="employeeID" readonly>
+
+                <label for="editFname">First Name:</label>
+                <input type="text" id="editFname" name="fname" required>
+
+                <label for="editMinit">Middle Initial:</label>
+                <input type="text" id="editMinit" name="minit">
+
+                <label for="editLname">Last Name:</label>
+                <input type="text" id="editLname" name="lname" required>
+
+                <label for="editDob">Date of Birth:</label>
+                <input type="date" id="editDob" name="dob" required>
+
+                <label for="editPosition">Position:</label>
+                <input type="text" id="editPosition" name="position" required>
+
+                <label for="editHoursPerWeek">Hours Per Week:</label>
+                <input type="number" id="editHoursPerWeek" name="hoursPerWeek">
+
+                <label for="editSalary">Salary:</label>
+                <input type="number" id="editSalary" name="salary">
+
+                <label for="editRate">Rate:</label>
+                <input type="number" id="editRate" name="rate">
+
+                <button type="button" onclick="submitEditEmployee()">Save Changes</button>
+            </form>
+        </div>
+    </div>
 </body>
 </html>
