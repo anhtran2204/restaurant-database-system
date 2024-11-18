@@ -41,6 +41,7 @@ CREATE TABLE Schedule (
 CREATE TABLE Availability (
     EmployeeID INT NOT NULL,
     AvailableDays VARCHAR(100) NOT NULL, -- Comma-separated days (e.g., "Monday,Tuesday")
+    ShiftType VARCHAR(20) NOT NULL,
     PRIMARY KEY (EmployeeID),
     FOREIGN KEY (EmployeeID) REFERENCES Employees(ID) ON DELETE CASCADE ON UPDATE CASCADE
 );

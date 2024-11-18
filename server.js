@@ -27,18 +27,26 @@ db.connect((err) => {
 
 // CRUD for Employees
 app.get('/api/employees', (req, res) => {
-    const sql = 'SELECT * FROM Employees';
+    const sql = `
+        SELECT e.*, a.AvailableDays, a.ShiftType 
+        FROM Employees e
+        LEFT JOIN Availability a ON e.ID = a.EmployeeID
+    `;
     db.query(sql, (err, results) => {
         if (err) return res.status(500).json({ error: 'Database query failed' });
         res.json(results);
     });
 });
 
-// Get a single employee by ID
 app.get('/api/employees/:id', (req, res) => {
     const { id } = req.params;
-
-    db.query('SELECT * FROM Employees WHERE ID = ?', [id], (err, results) => {
+    const sql = `
+        SELECT e.*, a.AvailableDays, a.ShiftType 
+        FROM Employees e
+        LEFT JOIN Availability a ON e.ID = a.EmployeeID
+        WHERE e.ID = ?
+    `;
+    db.query(sql, [id], (err, results) => {
         if (err) {
             console.error(err);
             return res.status(500).json({ error: 'Database query failed.' });
@@ -53,7 +61,7 @@ app.get('/api/employees/:id', (req, res) => {
 });
 
 app.post('/api/employees', (req, res) => {
-    const { ID, fname, minit, lname, dob, position, hoursPerWeek, Salary, Rate } = req.body;
+    const { ID, fname, minit, lname, dob, position, hoursPerWeek, Salary, Rate, availableDays, shiftType } = req.body;
 
     if (!ID || !fname || !lname || !dob || !position) {
         return res.status(400).json({ status: 'error', message: 'Missing required fields' });
@@ -61,54 +69,88 @@ app.post('/api/employees', (req, res) => {
 
     const formattedDOB = new Date(dob).toISOString().split('T')[0];
 
-    const sql = `
+    const insertEmployee = `
         INSERT INTO Employees (ID, fname, minit, lname, dob, position, hoursPerWeek, Salary, Rate) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
+    const insertAvailability = `
+        INSERT INTO Availability (EmployeeID, AvailableDays, ShiftType) 
+        VALUES (?, ?, ?)
+    `;
+
     const params = [ID, fname, minit || null, lname, formattedDOB, position, hoursPerWeek || null, Salary || null, Rate || null];
 
-    db.query(sql, params, (err) => {
+    db.query(insertEmployee, params, (err) => {
         if (err) {
             console.error(err);
             res.status(500).json({ status: 'error', message: 'Database error' });
         } else {
-            res.json({ status: 'success', message: 'Employee added successfully' });
+            db.query(insertAvailability, [ID, availableDays || '', shiftType || ''], (err) => {
+                if (err) {
+                    console.error(err);
+                    res.status(500).json({ status: 'error', message: 'Failed to save availability' });
+                } else {
+                    res.json({ status: 'success', message: 'Employee added successfully' });
+                }
+            });
         }
     });
 });
 
-
 app.put('/api/employees/:id', (req, res) => {
     const employeeID = req.params.id;
-    const { fname, minit, lname, dob, position, hoursPerWeek, salary, rate } = req.body;
+    const { fname, minit, lname, dob, position, hoursPerWeek, salary, rate, availableDays, shiftType } = req.body;
 
-    const sql = `
+    const updateEmployee = `
         UPDATE Employees 
         SET fname = ?, minit = ?, lname = ?, dob = ?, position = ?, hoursPerWeek = ?, Salary = ?, Rate = ?
         WHERE ID = ?
     `;
+    const updateAvailability = `
+        UPDATE Availability 
+        SET AvailableDays = ?, ShiftType = ? 
+        WHERE EmployeeID = ?
+    `;
 
-    db.query(
-        sql,
-        [fname, minit, lname, dob, position, hoursPerWeek, salary, rate, employeeID],
-        (err, result) => {
-            if (err) {
-                console.error(err);
-                res.status(500).json({ error: 'Failed to update employee' });
-            } else {
-                res.json({ status: 'success' });
-            }
+    const params = [fname, minit, lname, dob, position, hoursPerWeek, salary, rate];
+
+    db.query(updateEmployee, [...params, employeeID], (err) => {
+        if (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Failed to update employee' });
+        } else {
+            db.query(updateAvailability, [availableDays, shiftType, employeeID], (err) => {
+                if (err) {
+                    console.error(err);
+                    res.status(500).json({ error: 'Failed to update availability' });
+                } else {
+                    res.json({ status: 'success' });
+                }
+            });
         }
-    );
+    });
 });
-
 
 app.delete('/api/employees/:id', (req, res) => {
     const { id } = req.params;
 
-    db.query('DELETE FROM Employees WHERE ID = ?', id, err => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: 'Employee deleted successfully' });
+    const deleteAvailability = 'DELETE FROM Availability WHERE EmployeeID = ?';
+    const deleteEmployee = 'DELETE FROM Employees WHERE ID = ?';
+
+    db.query(deleteAvailability, id, (err) => {
+        if (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Failed to delete availability' });
+        } else {
+            db.query(deleteEmployee, id, (err) => {
+                if (err) {
+                    console.error(err);
+                    res.status(500).json({ error: 'Failed to delete employee' });
+                } else {
+                    res.json({ message: 'Employee deleted successfully' });
+                }
+            });
+        }
     });
 });
 
@@ -204,65 +246,58 @@ app.delete('/api/worktimes/:clockID', (req, res) => {
 
 // CRUD for Schedule
 app.get('/api/schedule', (req, res) => {
-    const { startDate, endDate } = req.query;
+    const { weekStartDate } = req.query;
 
-    if (!startDate || !endDate) {
-        return res.status(400).json({ error: 'Start date and end date are required.' });
+    if (!weekStartDate) {
+        return res.status(400).json({ error: 'Week start date is required.' });
     }
 
     const sql = `
         SELECT 
             e.ID AS EmployeeID,
             CONCAT(e.fname, ' ', e.lname) AS FullName,
-            s.AvDate AS Date,
+            s.DayOfWeek,
             s.StartTime,
             s.EndTime,
-            s.ShiftType,
-            e.position AS Position
+            s.ShiftType
         FROM Employees e
-        LEFT JOIN Schedule s ON e.ID = s.EmployeeID
-        WHERE s.AvDate BETWEEN ? AND ?
-        ORDER BY e.ID, s.AvDate;
+        JOIN Schedule s ON e.ID = s.EmployeeID
+        WHERE s.WeekStartDate = ?
+        ORDER BY e.ID, FIELD(s.DayOfWeek, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday');
     `;
 
-    db.query(sql, [startDate, endDate], (err, results) => {
+    db.query(sql, [weekStartDate], (err, results) => {
         if (err) {
             console.error(err);
             return res.status(500).json({ error: 'Database query failed.' });
         }
 
-        // Initialize groupedData here
         const groupedData = results.reduce((acc, row) => {
             const employee = acc.find(e => e.EmployeeID === row.EmployeeID);
 
             if (employee) {
                 employee.schedules.push({
-                    date: row.Date,
+                    DayOfWeek: row.DayOfWeek,
                     StartTime: row.StartTime,
                     EndTime: row.EndTime,
                     ShiftType: row.ShiftType,
-                    Position: row.Position,
                 });
             } else {
                 acc.push({
                     EmployeeID: row.EmployeeID,
                     FullName: row.FullName,
-                    schedules: [
-                        {
-                            date: row.Date,
-                            StartTime: row.StartTime,
-                            EndTime: row.EndTime,
-                            ShiftType: row.ShiftType,
-                            Position: row.Position,
-                        },
-                    ],
+                    schedules: [{
+                        DayOfWeek: row.DayOfWeek,
+                        StartTime: row.StartTime,
+                        EndTime: row.EndTime,
+                        ShiftType: row.ShiftType,
+                    }],
                 });
             }
 
             return acc;
         }, []);
 
-        // console.log('Grouped Data:', groupedData); // Log groupedData for debugging
         res.json(groupedData);
     });
 });
@@ -296,23 +331,40 @@ app.delete('/api/schedule/:id', (req, res) => {
 });
 
 // CRUD for Availability
-app.post('/api/availability', (req, res) => {
-    const { employeeID, availableDates, shiftType } = req.body;
+app.get('/api/availability', (req, res) => {
+    const sql = `
+        SELECT e.ID, CONCAT(e.fname, ' ', e.lname) AS FullName, a.AvailableDays
+        FROM Employees e
+        JOIN Availability a ON e.ID = a.EmployeeID
+    `;
 
-    const queries = availableDates.map(date => {
-        const [startTime, endTime] = shiftType === 'Morning' 
-            ? ['10:00:00', '16:00:00'] 
-            : ['16:00:00', '22:00:00'];
+    db.query(sql, (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: 'Database query failed.' });
+        }
 
-        return db.query(
-            `INSERT INTO Schedule (EmployeeID, AvDate, StartTime, EndTime, Status) VALUES (?, ?, ?, ?, 'Available')`,
-            [employeeID, date, startTime, endTime],
-        );
+        const availability = {
+            Monday: [],
+            Tuesday: [],
+            Wednesday: [],
+            Thursday: [],
+            Friday: [],
+            Saturday: [],
+            Sunday: []
+        };
+
+        results.forEach(row => {
+            const days = row.AvailableDays.split(',');
+            days.forEach(day => {
+                if (availability[day]) {
+                    availability[day].push({ ID: row.ID, FullName: row.FullName });
+                }
+            });
+        });
+
+        res.json(availability);
     });
-
-    Promise.all(queries)
-        .then(() => res.json({ status: 'success' }))
-        .catch(err => res.status(500).json({ status: 'error', message: err.message }));
 });
 
 // CRUD for Menu_item

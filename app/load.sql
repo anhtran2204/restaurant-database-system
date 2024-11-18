@@ -52,11 +52,18 @@ VALUES
     (7, 30, '2024-11-14', '08:00:00', '16:00:00', 'Dinner');
 
 -- Load test data for Availability
-INSERT INTO Availability (EmployeeID, AvailableDays)
+INSERT INTO Availability (EmployeeID, AvailableDays, ShiftType)
 VALUES
-    (3, 'Monday,Tuesday,Wednesday'),
-    (4, 'Thursday,Friday,Saturday'),
-    (5, 'Sunday,Monday');
+    (3, 'Monday,Tuesday,Wednesday', 'Morning'),
+    (4, 'Thursday,Friday,Saturday', 'Dinner'),
+    (5, 'Sunday,Monday', 'Morning'),
+    (28, 'Monday,Tuesday,Wednesday', 'Morning'),
+    (29, 'Thursday,Friday,Saturday', 'Dinner'),
+    (30, 'Sunday,Monday', 'Morning'),
+    (31, 'Monday,Tuesday,Wednesday', 'Morning'),
+    (32, 'Thursday,Friday,Saturday', 'Dinner'),
+    (18, 'Sunday,Monday', 'Morning'),
+    (45, 'Monday,Tuesday,Wednesday', 'Morning');
 
 -- Insert data into Clocked_Times table
 INSERT INTO Clocked_Times (ClockID, EmployeeID, ClockedStart, ClockedEnd)

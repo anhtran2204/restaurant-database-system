@@ -118,43 +118,111 @@ function fetchSchedule(startDate, endDate, weekDays) {
         .catch(error => console.error('Error fetching schedule:', error));
 }
 
-// Handle the pop-up form visibility
-function showAddAvailabilityForm() {
-    document.getElementById('availabilityFormPopup').style.display = 'flex';
-}
-
-function closeAddAvailabilityForm() {
-    document.getElementById('availabilityFormPopup').style.display = 'none';
-}
-
-// Handle form submission
-function submitAvailabilityForm() {
-    const formData = {
-        employeeID: document.getElementById('employeeID').value,
-        availableDays: Array.from(document.querySelectorAll('#availableDays input[type="checkbox"]:checked'))
-            .map(checkbox => checkbox.value), // Collect selected days
-        shiftType: document.getElementById('shiftType').value,
-    };
-
-    fetch('/api/availability', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-    })
+function showGenerateScheduleModal() {
+    fetch('/api/availability')
         .then(response => response.json())
         .then(data => {
-            if (data.status === 'success') {
-                alert('Availability added successfully');
-                closeAddAvailabilityForm();
-                renderCalendar(); // Refresh the calendar to reflect new data
-            } else {
-                alert('Error adding availability');
-            }
+            Object.keys(data).forEach(day => {
+                const container = document.getElementById(day);
+                container.innerHTML = ''; // Clear previous content
+                data[day].forEach(employee => {
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.value = employee.ID;
+                    checkbox.id = `${day}-${employee.ID}`;
+
+                    const label = document.createElement('label');
+                    label.htmlFor = `${day}-${employee.ID}`;
+                    label.textContent = employee.FullName;
+
+                    // Ensure checkbox comes before the label
+                    const listItem = document.createElement('div');
+                    listItem.className = 'employee-item'; // Scoped styling will apply
+                    listItem.appendChild(checkbox);
+                    listItem.appendChild(label);
+
+                    container.appendChild(listItem);
+                });
+
+                // Show only Monday's list initially
+                if (day === 'Monday') {
+                    container.style.display = 'block';
+                } else {
+                    container.style.display = 'none';
+                }
+            });
+
+            document.getElementById('generateScheduleModal').style.display = 'flex';
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => console.error('Error fetching availability:', error));
 }
 
 
-document.addEventListener('DOMContentLoaded', renderCalendar);
+function closeGenerateScheduleModal() {
+    document.getElementById('generateScheduleModal').style.display = 'none';
+}
 
-fetchSchedule(currentWeekStartDate, new Date(currentWeekStartDate), new Date(currentWeekStartDate));
+function openTab(event, day) {
+    const tabContents = document.querySelectorAll('.tabcontent');
+    tabContents.forEach(tab => tab.style.display = 'none');
+
+    const tabLinks = document.querySelectorAll('.tablink');
+    tabLinks.forEach(link => link.classList.remove('active'));
+
+    document.getElementById(day).style.display = 'block';
+    event.currentTarget.classList.add('active');
+}
+
+function generateSchedule() {
+    const schedule = {};
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+    // Collect selected employees for each day
+    days.forEach(day => {
+        const selectedEmployees = Array.from(document.querySelectorAll(`#${day} input:checked`))
+            .map(checkbox => {
+                return {
+                    ID: checkbox.value,
+                    FullName: checkbox.nextElementSibling.textContent // Extract the employee's name from the label
+                };
+            });
+
+        schedule[day] = selectedEmployees;
+    });
+
+    // Prepare data in the format required for `populateScheduleTable`
+    const employees = [];
+
+    // Combine all selected employees into a single array
+    const employeeMap = new Map(); // Use Map to avoid duplicate entries
+    days.forEach(day => {
+        schedule[day].forEach(employee => {
+            if (!employeeMap.has(employee.ID)) {
+                employeeMap.set(employee.ID, {
+                    ID: employee.ID,
+                    FullName: employee.FullName,
+                    schedules: []
+                });
+            }
+            // Add the schedule for the day
+            employeeMap.get(employee.ID).schedules.push({
+                date: day, // Add the day of the week as the schedule "date"
+                ShiftType: 'Scheduled' // Placeholder to indicate the employee is scheduled
+            });
+        });
+    });
+
+    employees.push(...employeeMap.values());
+
+    // Populate the table with the generated schedule
+    populateScheduleTable(employees, currentWeekStartDate);
+
+    closeGenerateScheduleModal();
+}
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    renderCalendar(); // Correctly initializes the calendar
+    // Ensure no code unintentionally calls showGenerateScheduleModal
+    fetchSchedule(currentWeekStartDate, new Date(currentWeekStartDate), new Date(currentWeekStartDate));
+});

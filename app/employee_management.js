@@ -19,6 +19,8 @@ function fetchEmployees() {
                     <td>${employee.hoursPerWeek || ''}</td>
                     <td>${employee.Salary || ''}</td>
                     <td>${employee.Rate || ''}</td>
+                    <td>${employee.AvailableDays || ''}</td>
+                    <td>${employee.ShiftType || ''}</td>
                     <td>
                         <button class="btn btn-warning" onclick="openEditEmployeeModal(${employee.ID})">Edit</button>
                         <button class="btn btn-danger" onclick="deleteEmployee(${employee.ID})">Delete</button>
@@ -26,7 +28,8 @@ function fetchEmployees() {
                 `;
                 tbody.appendChild(row);
             });
-        });
+        })
+        .catch(error => console.error('Error fetching employees:', error));
 }
 
 // Open the Edit Modal and pre-fill data
@@ -35,7 +38,6 @@ function openEditEmployeeModal(employeeID) {
         .then(response => response.json())
         .then(employee => {
             if (employee) {
-                // Pre-fill the form in the modal
                 document.getElementById('editEmployeeID').value = employee.ID;
                 document.getElementById('editFname').value = employee.fname;
                 document.getElementById('editMinit').value = employee.minit || '';
@@ -45,11 +47,51 @@ function openEditEmployeeModal(employeeID) {
                 document.getElementById('editHoursPerWeek').value = employee.hoursPerWeek || '';
                 document.getElementById('editSalary').value = employee.Salary || '';
                 document.getElementById('editRate').value = employee.Rate || '';
-                // Show the modal
+                document.getElementById('editShiftType').value = employee.ShiftType;
+
+                // Populate checkboxes for available days
+                const availableDays = (employee.AvailableDays || '').split(',');
+                document.querySelectorAll('#editAvailableDays input[type="checkbox"]').forEach(checkbox => {
+                    checkbox.checked = availableDays.includes(checkbox.value);
+                });
+
                 document.getElementById('employeeEditModal').style.display = 'flex';
             }
         })
         .catch(error => console.error('Error fetching employee:', error));
+}
+
+
+function saveEmployee() {
+    const employeeData = {
+        employeeID: document.getElementById('employeeID').value,
+        fname: document.getElementById('fname').value,
+        minit: document.getElementById('minit').value || null,
+        lname: document.getElementById('lname').value,
+        dob: document.getElementById('dob').value,
+        position: document.getElementById('position').value,
+        hoursPerWeek: document.getElementById('hoursPerWeek').value || null,
+        salary: document.getElementById('salary').value || null,
+        rate: document.getElementById('rate').value || null,
+        availableDays: getSelectedDays(),
+        shiftType: document.getElementById('shiftType').value || null
+    };
+
+    fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(employeeData),
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert('Employee saved successfully');
+                fetchEmployees();
+            } else {
+                alert('Error saving employee');
+            }
+        })
+        .catch(error => console.error('Error saving employee:', error));
 }
 
 // Submit changes from the modal
@@ -64,6 +106,10 @@ function submitEditEmployee() {
         hoursPerWeek: document.getElementById('editHoursPerWeek').value || null,
         Salary: document.getElementById('editSalary').value || null,
         Rate: document.getElementById('editRate').value || null,
+        shiftType: document.getElementById('editShiftType').value,
+        availableDays: Array.from(
+            document.querySelectorAll('#editAvailableDays input[type="checkbox"]:checked')
+        ).map(checkbox => checkbox.value).join(',')
     };
 
     fetch(`${apiUrl}/${employeeID}`, {
