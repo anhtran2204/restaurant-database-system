@@ -19,18 +19,11 @@ function getStartOfWeek(date) {
 function renderCalendar() {
     const calendarTitle = document.getElementById('calendarTitle');
     const calendarBody = document.getElementById('calendarBody');
-
-    // Format the week range title
-    const endOfWeek = new Date(currentWeekStartDate);
-    endOfWeek.setDate(endOfWeek.getDate() + 6);
-    calendarTitle.textContent = `${currentWeekStartDate.toDateString()} - ${endOfWeek.toDateString()}`;
-
-    // Clear previous content
-    calendarBody.innerHTML = '';
     const headerRow = document.querySelector('#scheduleTable thead tr');
-    headerRow.innerHTML = '<th>Employee</th>';
 
-    // Generate headers for each day of the week
+    // Clear previous header content
+    headerRow.innerHTML = '<th>Employee</th>'; // Add the "Employee" column label
+
     const weekDays = [];
     for (let i = 0; i < 7; i++) {
         const day = new Date(currentWeekStartDate);
@@ -42,8 +35,14 @@ function renderCalendar() {
         headerRow.appendChild(th);
     }
 
-    // Fetch schedule data for the current week
-    fetchSchedule(currentWeekStartDate, endOfWeek, weekDays);
+    // Update calendar title
+    const endOfWeek = new Date(currentWeekStartDate);
+    endOfWeek.setDate(currentWeekStartDate.getDate() + 6);
+    calendarTitle.textContent = `${currentWeekStartDate.toDateString()} - ${endOfWeek.toDateString()}`;
+
+    // Clear body content and fetch new data
+    calendarBody.innerHTML = '';
+    fetchSchedule(currentWeekStartDate);
 }
 
 function populateScheduleTable(data, startDate) {
@@ -66,13 +65,15 @@ function populateScheduleTable(data, startDate) {
             const scheduleForDay = employee.schedules.find(s => s.date.startsWith(dateStr));
             if (scheduleForDay) {
                 cell.innerHTML = `
-                    <div>${scheduleForDay.ShiftType}</div>
-                    <div>${scheduleForDay.StartTime} - ${scheduleForDay.EndTime}</div>
-                    <div>${scheduleForDay.Position}</div>
+                    <div class="schedule-content">
+                        <div>${scheduleForDay.ShiftType}</div>
+                        <div>${scheduleForDay.StartTime} - ${scheduleForDay.EndTime}</div>
+                        <div>${scheduleForDay.Position}</div>
+                    </div>
                 `;
                 cell.classList.add('scheduled-cell');
             } else {
-                cell.innerHTML = `<div>Off</div>`;
+                cell.innerHTML = `<div class="off-content">Off</div>`;
                 cell.classList.add('off-cell');
             }
             row.appendChild(cell);
@@ -81,42 +82,22 @@ function populateScheduleTable(data, startDate) {
     });
 }
 
-function fetchSchedule(startDate, endDate, weekDays) {
-    fetch(`/api/schedule?startDate=${startDate.toISOString().split('T')[0]}&endDate=${endDate.toISOString().split('T')[0]}`)
+
+function fetchSchedule(startDate) {
+    const weekStartDate = startDate.toISOString().split('T')[0];
+
+    fetch(`/api/schedule?weekStartDate=${weekStartDate}`)
         .then(response => response.json())
         .then(data => {
-            const calendarBody = document.getElementById('calendarBody');
-
-            data.forEach(employee => {
-                const row = document.createElement('tr');
-                
-                // Employee Name Cell
-                const nameCell = document.createElement('td');
-                nameCell.textContent = employee.FullName;
-                nameCell.classList.add('employee-name');
-                row.appendChild(nameCell);
-
-                // Schedule Cells for each day of the week
-                weekDays.forEach(day => {
-                    const cell = document.createElement('td');
-                    const dateString = day.toISOString().split('T')[0];
-
-                    const shift = employee.schedules.find(s => s.date === dateString);
-                    if (shift) {
-                        const shiftDiv = document.createElement('div');
-                        shiftDiv.classList.add('shift');
-                        shiftDiv.textContent = `${shift.Position}: ${shift.StartTime} - ${shift.EndTime}`;
-                        cell.appendChild(shiftDiv);
-                    }
-                    row.appendChild(cell);
-                });
-
-                calendarBody.appendChild(row);
-                populateScheduleTable(data, startDate);
-            });
+            if (data.error) {
+                console.error('Error fetching schedule:', data.error);
+                return;
+            }
+            populateScheduleTable(data, startDate);
         })
         .catch(error => console.error('Error fetching schedule:', error));
 }
+
 
 function showGenerateScheduleModal() {
     fetch('/api/availability')
@@ -180,45 +161,50 @@ function generateSchedule() {
     // Collect selected employees for each day
     days.forEach(day => {
         const selectedEmployees = Array.from(document.querySelectorAll(`#${day} input:checked`))
-            .map(checkbox => {
-                return {
-                    ID: checkbox.value,
-                    FullName: checkbox.nextElementSibling.textContent // Extract the employee's name from the label
-                };
-            });
+            .map(checkbox => ({
+                ID: checkbox.value,
+                FullName: checkbox.nextElementSibling.textContent // Employee name
+            }));
 
         schedule[day] = selectedEmployees;
     });
 
-    // Prepare data in the format required for `populateScheduleTable`
-    const employees = [];
+    // Prepare schedule data for the backend
+    const weekStartDate = currentWeekStartDate.toISOString().split('T')[0];
+    const scheduleEntries = [];
+    days.forEach((day, index) => {
+        const dayDate = new Date(currentWeekStartDate);
+        dayDate.setDate(currentWeekStartDate.getDate() + index); // Get the date for each day
 
-    // Combine all selected employees into a single array
-    const employeeMap = new Map(); // Use Map to avoid duplicate entries
-    days.forEach(day => {
         schedule[day].forEach(employee => {
-            if (!employeeMap.has(employee.ID)) {
-                employeeMap.set(employee.ID, {
-                    ID: employee.ID,
-                    FullName: employee.FullName,
-                    schedules: []
-                });
-            }
-            // Add the schedule for the day
-            employeeMap.get(employee.ID).schedules.push({
-                date: day, // Add the day of the week as the schedule "date"
-                ShiftType: 'Scheduled' // Placeholder to indicate the employee is scheduled
+            scheduleEntries.push({
+                EmployeeID: employee.ID,
+                AvDate: dayDate.toISOString().split('T')[0],
+                StartTime: '09:00:00', // Example start time
+                EndTime: '17:00:00',  // Example end time
+                ShiftType: 'Morning'  // Example shift type
             });
         });
     });
 
-    employees.push(...employeeMap.values());
+    // Send schedule data to the backend
+    const promises = scheduleEntries.map(entry =>
+        fetch('/api/schedule', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(entry)
+        })
+    );
 
-    // Populate the table with the generated schedule
-    populateScheduleTable(employees, currentWeekStartDate);
-
-    closeGenerateScheduleModal();
+    Promise.all(promises)
+        .then(() => {
+            console.log('Schedule saved successfully.');
+            renderCalendar(); // Reload the calendar to reflect changes
+            closeGenerateScheduleModal();
+        })
+        .catch(error => console.error('Error saving schedule:', error));
 }
+
 
 
 document.addEventListener('DOMContentLoaded', () => {

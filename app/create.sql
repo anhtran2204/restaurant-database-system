@@ -27,14 +27,14 @@ CREATE TABLE Manages (
 
 -- Create Schedule table
 CREATE TABLE Schedule (
-    EntryID INT NOT NULL AUTO_INCREMENT,
+    EntryID INT AUTO_INCREMENT PRIMARY KEY,
     EmployeeID INT NOT NULL,
-    AvDate DATE NOT NULL,
+    WeekStartDate DATE NOT NULL,
+    DayOfWeek VARCHAR(10) NOT NULL,
     StartTime TIME NOT NULL,
     EndTime TIME NOT NULL,
-    ShiftType VARCHAR(20) NOT NULL,
-    PRIMARY KEY (EntryID),
-    FOREIGN KEY (EmployeeID) REFERENCES Employees(ID) ON DELETE CASCADE ON UPDATE CASCADE
+    ShiftType VARCHAR(20),
+    FOREIGN KEY (EmployeeID) REFERENCES Employees(ID)
 );
 
 -- Create Availability table

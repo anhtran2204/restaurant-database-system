@@ -33,7 +33,9 @@ VALUES
     (45, 'Linda', 'S', 'Brown', '1995-02-05', 'Server', 25, NULL, 18),
     (3, 'Alice', 'A', 'Brown', '1992-08-15', 'Manager', 40, 50000, NULL),
     (4, 'Jane', 'M', 'Smith', '1985-05-20', 'Chef', 40, 40000, NULL),
-    (5, 'John', 'D', 'Doe', '1990-01-01', 'Server', 40, 30000, NULL);
+    (5, 'John', 'D', 'Doe', '1990-01-01', 'Server', 40, 30000, NULL),
+    (1, 'John', 'A', 'Doe', '1985-05-15', 'Chef', 40, 50000, 25.00),
+    (2, 'Jane', 'B', 'Smith', '1990-08-20', 'Waiter', 20, NULL, 15.00);
 
 -- Insert data into Manages table
 INSERT INTO Manages (ManagerID, EmployeeID)
@@ -41,15 +43,19 @@ VALUES
     (28, 32), (28, 18), (30, 29), (28, 45);
 
 -- Insert data into Schedule table
-INSERT INTO Schedule (EntryID, EmployeeID, AvDate, StartTime, EndTime, ShiftType)
+INSERT INTO Schedule (EmployeeID, WeekStartDate, DayOfWeek, StartTime, EndTime, ShiftType)
 VALUES
-    (1, 32, '2024-10-22', '08:30:00', '19:45:00', 'Morning'),
-    (2, 32, '2024-10-25', '08:00:00', '15:30:00', 'Dinner'),
-    (3, 18, '2024-10-23', '09:15:00', '16:45:00', 'Morning'), 
-    (4, 45, '2024-10-24', '10:05:00', '18:15:00', 'Morning'), 
-    (5, 28, '2024-11-12', '09:00:00', '17:00:00', 'Dinner'),
-    (6, 29, '2024-11-13', '10:00:00', '18:00:00', 'Morning'),
-    (7, 30, '2024-11-14', '08:00:00', '16:00:00', 'Dinner');
+    (1, '2024-11-18', 'Monday', '09:00:00', '17:00:00', 'Morning'),
+    (2, '2024-11-18', 'Thursday', '16:00:00', '20:00:00', 'Evening'),
+    (3, '2024-11-18', 'Wednesday', '08:00:00', '16:00:00', 'Morning'),
+    (4, '2024-11-18', 'Friday', '12:00:00', '20:00:00', 'Dinner'),
+    (5, '2024-11-18', 'Saturday', '10:00:00', '18:00:00', 'Morning'),
+    (28, '2024-11-18', 'Monday', '09:00:00', '17:00:00', 'Morning'),
+    (29, '2024-11-18', 'Thursday', '16:00:00', '20:00:00', 'Evening'),
+    (30, '2024-11-18', 'Wednesday', '08:00:00', '16:00:00', 'Morning'),
+    (31, '2024-11-18', 'Friday', '12:00:00', '20:00:00', 'Dinner'),
+    (18, '2024-11-18', 'Saturday', '10:00:00', '18:00:00', 'Morning'),
+    (45, '2024-11-18', 'Sunday', '08:00:00', '16:00:00', 'Morning');
 
 -- Load test data for Availability
 INSERT INTO Availability (EmployeeID, AvailableDays, ShiftType)

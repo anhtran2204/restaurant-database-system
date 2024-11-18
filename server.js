@@ -256,6 +256,7 @@ app.get('/api/schedule', (req, res) => {
         SELECT 
             e.ID AS EmployeeID,
             CONCAT(e.fname, ' ', e.lname) AS FullName,
+            s.WeekStartDate,
             s.DayOfWeek,
             s.StartTime,
             s.EndTime,
@@ -268,30 +269,33 @@ app.get('/api/schedule', (req, res) => {
 
     db.query(sql, [weekStartDate], (err, results) => {
         if (err) {
-            console.error(err);
+            console.error('Error fetching schedule:', err);
             return res.status(500).json({ error: 'Database query failed.' });
         }
 
+        // Group by employee
         const groupedData = results.reduce((acc, row) => {
             const employee = acc.find(e => e.EmployeeID === row.EmployeeID);
 
             if (employee) {
                 employee.schedules.push({
+                    date: row.WeekStartDate,
                     DayOfWeek: row.DayOfWeek,
                     StartTime: row.StartTime,
                     EndTime: row.EndTime,
-                    ShiftType: row.ShiftType,
+                    ShiftType: row.ShiftType
                 });
             } else {
                 acc.push({
                     EmployeeID: row.EmployeeID,
                     FullName: row.FullName,
                     schedules: [{
+                        date: row.WeekStartDate,
                         DayOfWeek: row.DayOfWeek,
                         StartTime: row.StartTime,
                         EndTime: row.EndTime,
-                        ShiftType: row.ShiftType,
-                    }],
+                        ShiftType: row.ShiftType
+                    }]
                 });
             }
 
