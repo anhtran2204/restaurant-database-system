@@ -46,12 +46,12 @@ VALUES
 INSERT INTO Schedule (EmployeeID, WeekStartDate, DayOfWeek, StartTime, EndTime, ShiftType)
 VALUES
     (1, '2024-11-18', 'Monday', '09:00:00', '17:00:00', 'Morning'),
-    (2, '2024-11-18', 'Thursday', '16:00:00', '20:00:00', 'Evening'),
+    (2, '2024-11-18', 'Thursday', '16:00:00', '20:00:00', 'Dinner'),
     (3, '2024-11-18', 'Wednesday', '08:00:00', '16:00:00', 'Morning'),
     (4, '2024-11-18', 'Friday', '12:00:00', '20:00:00', 'Dinner'),
     (5, '2024-11-18', 'Saturday', '10:00:00', '18:00:00', 'Morning'),
     (28, '2024-11-18', 'Monday', '09:00:00', '17:00:00', 'Morning'),
-    (29, '2024-11-18', 'Thursday', '16:00:00', '20:00:00', 'Evening'),
+    (29, '2024-11-18', 'Thursday', '16:00:00', '20:00:00', 'Dinner'),
     (30, '2024-11-18', 'Wednesday', '08:00:00', '16:00:00', 'Morning'),
     (31, '2024-11-18', 'Friday', '12:00:00', '20:00:00', 'Dinner'),
     (18, '2024-11-18', 'Saturday', '10:00:00', '18:00:00', 'Morning'),

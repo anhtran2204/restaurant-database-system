@@ -29,13 +29,18 @@ CREATE TABLE Manages (
 CREATE TABLE Schedule (
     EntryID INT AUTO_INCREMENT PRIMARY KEY,
     EmployeeID INT NOT NULL,
-    WeekStartDate DATE NOT NULL,
+    WeekStartDate DATE NOT NULL PRIMARY KEY,
     DayOfWeek VARCHAR(10) NOT NULL,
     StartTime TIME NOT NULL,
     EndTime TIME NOT NULL,
     ShiftType VARCHAR(20),
     FOREIGN KEY (EmployeeID) REFERENCES Employees(ID)
 );
+
+CREATE TABLE WeeklySchedules {
+    WeekStartDate DATE NOT NULL,
+    FOREIGN KEY (WeekStartDate) REFERENCES Schedule(WeekStartDate)
+}
 
 -- Create Availability table
 CREATE TABLE Availability (

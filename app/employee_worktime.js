@@ -14,6 +14,7 @@ function fetchWorktime() {
                     <td>${startTime}</td>
                     <td>${endTime}</td>
                     <td>
+                        <button onclick="editWorktime(${worktime.ClockID})">Edit</button>
                         <button onclick="deleteWorktime(${worktime.ClockID})">Delete</button>
                     </td>
                 `;

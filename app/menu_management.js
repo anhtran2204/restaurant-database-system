@@ -12,6 +12,7 @@ function fetchMenuItems() {
                     <td>${item.Recipe}</td>
                     <td>${item.Descr}</td>
                     <td>
+                        <button onclick="editMenuItem(${item.Mname})">Edit</button>
                         <button onclick="deleteMenuItem(${item.Mname})">Delete</button>
                     </td>
                 `;

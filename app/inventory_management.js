@@ -17,8 +17,8 @@ function fetchInventory() {
                         day: '2-digit'
                     })}</td>
                     <td>
-                        <button onclick="deleteInventory(${item.IngredientID}, ${item.LocationID})">Delete</button>
                         <button onclick="editInventory(${item.IngredientID}, ${item.LocationID})">Edit</button>
+                        <button onclick="deleteInventory(${item.IngredientID}, ${item.LocationID})">Delete</button>
                     </td>
                 `;
                 tbody.appendChild(row);
