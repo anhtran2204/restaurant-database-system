@@ -12,15 +12,15 @@ function fetchEmployees() {
                 row.innerHTML = `
                     <td>${employee.ID}</td>
                     <td>${employee.fname}</td>
-                    <td>${employee.minit || ''}</td>
+                    <td>${employee.minit || 'N/A'}</td>
                     <td>${employee.lname}</td>
                     <td>${formatDate(employee.dob)}</td>
+                    <td>${employee.AvailableDays || 'N/A'}</td>
                     <td>${employee.position}</td>
-                    <td>${employee.hoursPerWeek || ''}</td>
-                    <td>${employee.Salary || ''}</td>
-                    <td>${employee.Rate || ''}</td>
-                    <td>${employee.AvailableDays || ''}</td>
-                    <td>${employee.ShiftType || ''}</td>
+                    <td>${employee.ShiftType || 'N/A'}</td>
+                    <td>${employee.hoursPerWeek || 'N/A'}</td>
+                    <td>${employee.Salary || 'N/A'}</td>
+                    <td>${employee.Rate || 'N/A'}</td>
                     <td>
                         <button class="btn btn-warning" onclick="openEditEmployeeModal(${employee.ID})">Edit</button>
                         <button class="btn btn-danger" onclick="deleteEmployee(${employee.ID})">Delete</button>
@@ -56,6 +56,9 @@ function openEditEmployeeModal(employeeID) {
                 });
 
                 document.getElementById('employeeEditModal').style.display = 'flex';
+
+                // Add event listener for clicks outside the modal
+                document.addEventListener('click', closeModalOnOutsideClick);
             }
         })
         .catch(error => console.error('Error fetching employee:', error));
@@ -147,10 +150,21 @@ function deleteEmployee(employeeID) {
     }
 }
 
+function closeModalOnOutsideClick(event) {
+    const modal = document.getElementById('employeeEditModal');
+    const modalContent = document.querySelector('.popup-content');
+
+    // Check if the clicked target is the modal overlay but not the modal content
+    if (event.target === modal) {
+        closeEditEmployeeModal();
+    }
+}
+
 // Close the Edit Modal
 function closeEditEmployeeModal() {
     document.getElementById('employeeEditModal').style.display = 'none';
     document.getElementById('editEmployeeForm').reset();
+    document.removeEventListener('click', closeModalOnOutsideClick);
 }
 
 // Utility function to format dates

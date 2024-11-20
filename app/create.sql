@@ -9,11 +9,14 @@ CREATE TABLE Employees (
     minit CHAR(1),
     lname VARCHAR(15) NOT NULL,
     dob DATE,
+    AvailableDays VARCHAR(100) NOT NULL, -- Comma-separated days (e.g., "Monday,Tuesday")
     position VARCHAR(20),
+    ShiftType VARCHAR(20) NOT NULL,
     hoursPerWeek INT,
     Salary INT,
     Rate DECIMAL(5, 2),
-    PRIMARY KEY (ID)
+    PRIMARY KEY (ID),
+    INDEX (position) -- Add an index for the `position` column
 );
 
 -- Create Manages table
@@ -29,34 +32,23 @@ CREATE TABLE Manages (
 CREATE TABLE Schedule (
     EntryID INT AUTO_INCREMENT PRIMARY KEY,
     EmployeeID INT NOT NULL,
-    WeekStartDate DATE NOT NULL PRIMARY KEY,
+    WeekStartDate DATE NOT NULL,
     DayOfWeek VARCHAR(10) NOT NULL,
     StartTime TIME NOT NULL,
     EndTime TIME NOT NULL,
     ShiftType VARCHAR(20),
-    FOREIGN KEY (EmployeeID) REFERENCES Employees(ID)
-);
-
-CREATE TABLE WeeklySchedules {
-    WeekStartDate DATE NOT NULL,
-    FOREIGN KEY (WeekStartDate) REFERENCES Schedule(WeekStartDate)
-}
-
--- Create Availability table
-CREATE TABLE Availability (
-    EmployeeID INT NOT NULL,
-    AvailableDays VARCHAR(100) NOT NULL, -- Comma-separated days (e.g., "Monday,Tuesday")
-    ShiftType VARCHAR(20) NOT NULL,
-    PRIMARY KEY (EmployeeID),
-    FOREIGN KEY (EmployeeID) REFERENCES Employees(ID) ON DELETE CASCADE ON UPDATE CASCADE
+    position VARCHAR(20),
+    FOREIGN KEY (EmployeeID) REFERENCES Employees(ID) 
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (position) REFERENCES Employees(position)
+        ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE Clocked_Times (
-    ClockID INT NOT NULL AUTO_INCREMENT,
     EmployeeID INT NOT NULL,
     ClockedStart TIMESTAMP NOT NULL,
     ClockedEnd TIMESTAMP NOT NULL,
-    PRIMARY KEY (ClockID),
+    PRIMARY KEY (EmployeeID),
     FOREIGN KEY (EmployeeID) REFERENCES Employees(ID)
         ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT CHK_TIME CHECK (ClockedStart < ClockedEnd)
@@ -153,15 +145,17 @@ CREATE TABLE Ingredient_inventory (
 );
 
 CREATE TABLE Menu_item (
+    ItemID  INT AUTO_INCREMENT,
 	Mname	VARCHAR(25)		NOT NULL,
     Price	DECIMAL(4,2)	NOT NULL,
     Recipe	TEXT			NOT NULL,
     Descr	TEXT			NOT NULL,
-    PRIMARY KEY(Mname)
+    PRIMARY KEY(ItemID),
+    UNIQUE(Mname)
 );
 
 CREATE TABLE Menu_item_ingredients (
-	Mname				VARCHAR(25)		NOT NULL,
+    Mname				VARCHAR(25)	NOT NULL,
     IngredientID		INT		NOT NULL,
     PRIMARY KEY(Mname, IngredientID),
     FOREIGN KEY(Mname) REFERENCES Menu_item(Mname)

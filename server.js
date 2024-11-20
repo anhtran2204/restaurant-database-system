@@ -28,9 +28,7 @@ db.connect((err) => {
 // CRUD for Employees
 app.get('/api/employees', (req, res) => {
     const sql = `
-        SELECT e.*, a.AvailableDays, a.ShiftType 
-        FROM Employees e
-        LEFT JOIN Availability a ON e.ID = a.EmployeeID
+        SELECT * FROM Employees e
     `;
     db.query(sql, (err, results) => {
         if (err) return res.status(500).json({ error: 'Database query failed' });
@@ -41,9 +39,8 @@ app.get('/api/employees', (req, res) => {
 app.get('/api/employees/:id', (req, res) => {
     const { id } = req.params;
     const sql = `
-        SELECT e.*, a.AvailableDays, a.ShiftType 
+        SELECT *
         FROM Employees e
-        LEFT JOIN Availability a ON e.ID = a.EmployeeID
         WHERE e.ID = ?
     `;
     db.query(sql, [id], (err, results) => {
@@ -175,6 +172,30 @@ app.get('/api/worktimes', (req, res) => {
     });
 });
 
+app.get('/api/worktimes/:empID', (req, res) => {
+    const { empID } = req.params;
+
+    const sql = `
+        SELECT EmployeeID AS EmpID, CONCAT(fname, ' ', lname) AS FullName, ClockedStart, ClockedEnd
+        FROM Clocked_Times
+        JOIN Employees ON Clocked_Times.EmployeeID = Employees.ID
+        WHERE EmployeeID = ?
+    `;
+
+    db.query(sql, [empID], (err, results) => {
+        if (err) {
+            console.error('Error fetching worktime:', err);
+            return res.status(500).json({ error: 'Database query failed' });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({ error: 'Worktime not found' });
+        }
+
+        res.json(results[0]);
+    });
+});
+
 // POST a new worktime
 app.post('/api/worktimes', (req, res) => {
     const { EmpID, FullName, ClockedStart, ClockedEnd } = req.body;
@@ -197,21 +218,21 @@ app.post('/api/worktimes', (req, res) => {
 });
 
 // PUT to update a worktime
-app.put('/api/worktimes/:clockID', (req, res) => {
-    const { clockID } = req.params;
-    const { EmpID, ClockedStart, ClockedEnd } = req.body;
+app.put('/api/worktimes/:empID', (req, res) => {
+    const { empID } = req.params;
+    const { ClockedStart, ClockedEnd } = req.body;
 
-    if (!clockID || !EmpID || !ClockedStart || !ClockedEnd) {
+    if (!empID || !ClockedStart || !ClockedEnd) {
         return res.status(400).json({ error: 'All fields are required.' });
     }
 
     const sql = `
         UPDATE Clocked_Times
-        SET EmployeeID = ?, ClockedStart = ?, ClockedEnd = ?
-        WHERE ClockID = ?;
+        SET ClockedStart = ?, ClockedEnd = ?
+        WHERE EmployeeID = ?;
     `;
 
-    db.query(sql, [EmpID, ClockedStart, ClockedEnd, clockID], (err, results) => {
+    db.query(sql, [ClockedStart, ClockedEnd, empID], (err, results) => {
         if (err) {
             console.error(err);
             return res.status(500).json({ error: 'Database query failed.' });
@@ -224,15 +245,15 @@ app.put('/api/worktimes/:clockID', (req, res) => {
 });
 
 // DELETE a worktime
-app.delete('/api/worktimes/:clockID', (req, res) => {
-    const { clockID } = req.params;
+app.delete('/api/worktimes/:empID', (req, res) => {
+    const { empID } = req.params;
 
     const sql = `
         DELETE FROM Clocked_Times
-        WHERE ClockID = ?;
+        WHERE EmployeeID = ?;
     `;
 
-    db.query(sql, [clockID], (err, results) => {
+    db.query(sql, [empID], (err, results) => {
         if (err) {
             console.error(err);
             return res.status(500).json({ error: 'Database query failed.' });
@@ -249,7 +270,7 @@ app.get('/api/schedule', (req, res) => {
     const { weekStartDate } = req.query;
 
     if (!weekStartDate) {
-        return res.status(400).json({ error: 'Week start date is required.' });
+        return res.status(400).json({ error: 'Missing weekStartDate query parameter' });
     }
 
     const sql = `
@@ -260,59 +281,91 @@ app.get('/api/schedule', (req, res) => {
             s.DayOfWeek,
             s.StartTime,
             s.EndTime,
-            s.ShiftType
+            s.ShiftType,
+            s.position
         FROM Employees e
-        JOIN Schedule s ON e.ID = s.EmployeeID
-        WHERE s.WeekStartDate = ?
+        LEFT JOIN Schedule s ON e.ID = s.EmployeeID AND s.WeekStartDate = ?
         ORDER BY e.ID, FIELD(s.DayOfWeek, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday');
     `;
 
     db.query(sql, [weekStartDate], (err, results) => {
         if (err) {
             console.error('Error fetching schedule:', err);
-            return res.status(500).json({ error: 'Database query failed.' });
+            return res.status(500).json({ error: 'Database query failed' });
         }
 
-        // Group by employee
-        const groupedData = results.reduce((acc, row) => {
-            const employee = acc.find(e => e.EmployeeID === row.EmployeeID);
+        // Group data by employee
+        const employees = [];
+        const employeeMap = {};
 
-            if (employee) {
-                employee.schedules.push({
-                    date: row.WeekStartDate,
-                    DayOfWeek: row.DayOfWeek,
-                    StartTime: row.StartTime,
-                    EndTime: row.EndTime,
-                    ShiftType: row.ShiftType
-                });
-            } else {
-                acc.push({
-                    EmployeeID: row.EmployeeID,
+        results.forEach(row => {
+            if (!employeeMap[row.EmployeeID]) {
+                const employee = {
+                    ID: row.EmployeeID,
                     FullName: row.FullName,
-                    schedules: [{
-                        date: row.WeekStartDate,
-                        DayOfWeek: row.DayOfWeek,
-                        StartTime: row.StartTime,
-                        EndTime: row.EndTime,
-                        ShiftType: row.ShiftType
-                    }]
-                });
+                    schedules: Array(7).fill({ day: null, startTime: null, endTime: null, shiftType: null, position: null })
+                };
+                employees.push(employee);
+                employeeMap[row.EmployeeID] = employee;
             }
 
-            return acc;
-        }, []);
+            if (row.DayOfWeek) {
+                const dayIndex = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].indexOf(row.DayOfWeek);
+                employeeMap[row.EmployeeID].schedules[dayIndex] = {
+                    day: row.DayOfWeek,
+                    startTime: row.StartTime,
+                    endTime: row.EndTime,
+                    shiftType: row.ShiftType,
+                    position: row.position
+                };
+            }
+        });
 
-        res.json(groupedData);
+        res.json(employees);
     });
 });
 
-
 app.post('/api/schedule', (req, res) => {
-    const { EmployeeID, AvDate, StartTime, EndTime, Status } = req.body;
-    db.query('INSERT INTO Schedule (EmployeeID, AvDate, StartTime, EndTime, ShiftType) VALUES (?, ?, ?, ?, ?)', 
-        [EmployeeID, AvDate, StartTime, EndTime, ShiftType], (err) => {
-        if (err) throw err;
-        res.json({ status: 'success' });
+    const { schedule } = req.body;
+
+    if (!Array.isArray(schedule) || schedule.length === 0) {
+        return res.status(400).json({ error: 'Schedule data is required' });
+    }
+
+    // Extract WeekStartDate from the first entry (or validate it in the request)
+    const weekStartDate = schedule[0]?.weekStartDate;
+
+    if (!weekStartDate) {
+        return res.status(400).json({ error: 'WeekStartDate is required' });
+    }
+
+    const sql = `
+        INSERT INTO Schedule (EmployeeID, WeekStartDate, DayOfWeek, StartTime, EndTime, ShiftType, position)
+        VALUES ?
+        ON DUPLICATE KEY UPDATE
+        StartTime = VALUES(StartTime),
+        EndTime = VALUES(EndTime),
+        ShiftType = VALUES(ShiftType),
+        position = VALUES(position)
+    `;
+
+    const values = schedule.map(entry => [
+        entry.id, // EmployeeID
+        weekStartDate, // WeekStartDate
+        entry.day, // DayOfWeek
+        entry.startTime, // StartTime
+        entry.endTime, // EndTime
+        entry.ShiftType, // ShiftType
+        entry.position // Position
+    ]);
+
+    db.query(sql, [values], (err) => {
+        if (err) {
+            console.error('Error inserting/updating schedule:', err);
+            return res.status(500).json({ error: 'Database operation failed' });
+        }
+
+        res.json({ status: 'success', message: 'Schedule updated successfully' });
     });
 });
 
@@ -334,48 +387,34 @@ app.delete('/api/schedule/:id', (req, res) => {
     });
 });
 
-// CRUD for Availability
-app.get('/api/availability', (req, res) => {
-    const sql = `
-        SELECT e.ID, CONCAT(e.fname, ' ', e.lname) AS FullName, a.AvailableDays
-        FROM Employees e
-        JOIN Availability a ON e.ID = a.EmployeeID
-    `;
-
-    db.query(sql, (err, results) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).json({ error: 'Database query failed.' });
-        }
-
-        const availability = {
-            Monday: [],
-            Tuesday: [],
-            Wednesday: [],
-            Thursday: [],
-            Friday: [],
-            Saturday: [],
-            Sunday: []
-        };
-
-        results.forEach(row => {
-            const days = row.AvailableDays.split(',');
-            days.forEach(day => {
-                if (availability[day]) {
-                    availability[day].push({ ID: row.ID, FullName: row.FullName });
-                }
-            });
-        });
-
-        res.json(availability);
-    });
-});
-
 // CRUD for Menu_item
 app.get('/api/menu', (req, res) => {
     db.query('SELECT * FROM Menu_item', (err, results) => {
         if (err) throw err;
         res.json(results);
+    });
+});
+
+app.get('/api/menu/:itemID', (req, res) => {
+    const { itemID } = req.params;
+
+    const sql = `
+        SELECT ItemID, Mname, Price, Recipe, Descr
+        FROM Menu_item
+        WHERE ItemID = ?;
+    `;
+
+    db.query(sql, [itemID], (err, results) => {
+        if (err) {
+            console.error('Error fetching menu item:', err);
+            return res.status(500).json({ error: 'Database query failed.' });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({ error: 'Menu item not found.' });
+        }
+
+        res.json(results[0]);
     });
 });
 
@@ -388,19 +427,33 @@ app.post('/api/menu', (req, res) => {
     });
 });
 
-app.put('/api/menu/:name', (req, res) => {
-    const { Price, Recipe, Descr } = req.body;
-    const { name } = req.params;
-    db.query('UPDATE Menu_item SET Price = ?, Recipe = ?, Descr = ? WHERE Mname = ?', 
-        [Price, Recipe, Descr, name], (err) => {
-        if (err) throw err;
-        res.json({ status: 'success' });
+app.put('/api/menu/:ItemID', (req, res) => {
+    const { ItemID } = req.params;
+    const { Mname, Price, Recipe, Descr } = req.body;
+
+    const sql = `
+        UPDATE Menu_item
+        SET Mname = ?, Price = ?, Recipe = ?, Descr = ?
+        WHERE ItemID = ?;
+    `;
+
+    db.query(sql, [Mname, Price, Recipe, Descr, ItemID], (err, results) => {
+        if (err) {
+            console.error('Error updating menu item:', err);
+            return res.status(500).json({ error: 'Database query failed.' });
+        }
+
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ error: 'Menu item not found.' });
+        }
+
+        res.json({ status: 'success', message: 'Menu item updated successfully.' });
     });
 });
 
-app.delete('/api/menu/:name', (req, res) => {
-    const { name } = req.params;
-    db.query('DELETE FROM Menu_item WHERE Mname = ?', name, (err) => {
+app.delete('/api/menu/:ItemID', (req, res) => {
+    const { ItemID } = req.params;
+    db.query('DELETE FROM Menu_item WHERE ItemID = ?', ItemID, (err) => {
         if (err) throw err;
         res.json({ status: 'success' });
     });
@@ -414,6 +467,29 @@ app.get('/api/reservations', (req, res) => {
     });
 });
 
+app.get('/api/reservations/:id', (req, res) => {
+    const { id } = req.params;
+
+    const sql = `
+        SELECT ResID, ResName, ResInfo, HostID
+        FROM Reservation
+        WHERE ResID = ?;
+    `;
+
+    db.query(sql, [id], (err, results) => {
+        if (err) {
+            console.error('Error fetching reservation:', err);
+            return res.status(500).json({ error: 'Database query failed.' });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({ error: 'Reservation not found.' });
+        }
+
+        res.json(results[0]);
+    });
+});
+
 app.post('/api/reservations', (req, res) => {
     const { ResName, ResInfo, HostID } = req.body;
     db.query('INSERT INTO Reservation (ResName, ResInfo, HostID) VALUES (?, ?, ?)', 
@@ -424,12 +500,26 @@ app.post('/api/reservations', (req, res) => {
 });
 
 app.put('/api/reservations/:id', (req, res) => {
-    const { ResName, ResInfo, HostID } = req.body;
     const { id } = req.params;
-    db.query('UPDATE Reservation SET ResName = ?, ResInfo = ?, HostID = ? WHERE ResID = ?', 
-        [ResName, ResInfo, HostID, id], (err) => {
-        if (err) throw err;
-        res.json({ status: 'success' });
+    const { ResName, ResInfo, HostID } = req.body;
+
+    const sql = `
+        UPDATE Reservation
+        SET ResName = ?, ResInfo = ?, HostID = ?
+        WHERE ResID = ?;
+    `;
+
+    db.query(sql, [ResName, ResInfo, HostID, id], (err, results) => {
+        if (err) {
+            console.error('Error updating reservation:', err);
+            return res.status(500).json({ error: 'Database query failed.' });
+        }
+
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ error: 'Reservation not found.' });
+        }
+
+        res.json({ status: 'success', message: 'Reservation updated successfully.' });
     });
 });
 
@@ -446,6 +536,29 @@ app.get('/api/waitlist', (req, res) => {
     db.query('SELECT * FROM Waitlist', (err, results) => {
         if (err) throw err;
         res.json(results);
+    });
+});
+
+app.get('/api/waitlist/:id', (req, res) => {
+    const { id } = req.params;
+
+    const sql = `
+        SELECT WaitlistID, WaitName, PhoneNumber, PartySize, HostID
+        FROM Waitlist
+        WHERE WaitlistID = ?;
+    `;
+
+    db.query(sql, [id], (err, results) => {
+        if (err) {
+            console.error('Error fetching waitlist entry:', err);
+            return res.status(500).json({ error: 'Database query failed.' });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({ error: 'Waitlist entry not found.' });
+        }
+
+        res.json(results[0]);
     });
 });
 
@@ -475,9 +588,18 @@ app.put('/api/waitlist/:id', (req, res) => {
         SET WaitName = ?, PhoneNumber = ?, PartySize = ?, HostID = ?
         WHERE WaitlistID = ?;
     `;
-    db.query(sql, [WaitName, PhoneNumber, PartySize, HostID, id], (err) => {
-        if (err) throw err;
-        res.json({ status: 'success' });
+
+    db.query(sql, [WaitName, PhoneNumber, PartySize, HostID, id], (err, results) => {
+        if (err) {
+            console.error('Error updating waitlist entry:', err);
+            return res.status(500).json({ error: 'Database query failed.' });
+        }
+
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ error: 'Waitlist entry not found.' });
+        }
+
+        res.json({ status: 'success', message: 'Waitlist entry updated successfully.' });
     });
 });
 
@@ -491,22 +613,35 @@ app.delete('/api/waitlist/:id', (req, res) => {
 
 // CRUD for Inventory
 app.get('/api/inventory', (req, res) => {
-    const sql = `
-        SELECT 
-            IngredientID, 
-            IngredientName, 
-            LocationID, 
-            Quantity, 
-            Expiration 
-        FROM Ingredient_inventory;
-    `;
-
-    db.query(sql, (err, results) => {
+    db.query('SELECT * FROM Ingredient_inventory', (err, results) => {
         if (err) {
             console.error('Error fetching inventory:', err);
             return res.status(500).json({ error: 'Database query failed.' });
         }
         res.json(results);
+    });
+});
+
+app.get('/api/inventory/:ingredientID/:locationID', (req, res) => {
+    const { ingredientID, locationID } = req.params;
+
+    const sql = `
+        SELECT IngredientID, IngredientName, LocationID, Quantity, Expiration
+        FROM Ingredient_inventory
+        WHERE IngredientID = ? AND LocationID = ?;
+    `;
+
+    db.query(sql, [ingredientID, locationID], (err, results) => {
+        if (err) {
+            console.error('Error fetching inventory item:', err);
+            return res.status(500).json({ error: 'Database query failed.' });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({ error: 'Inventory item not found.' });
+        }
+
+        res.json(results[0]);
     });
 });
 
@@ -561,11 +696,11 @@ app.put('/api/inventory/:ingredientID/:locationID', (req, res) => {
 
     const sql = `
         UPDATE Ingredient_inventory
-        SET Quantity = ?, Expiration = ?
-        WHERE IngredientID = ? AND LocationID = ?;
+        SET Quantity = ${Quantity}, Expiration = ${Expiration}
+        WHERE IngredientID = ${ingredientID} AND LocationID = ${locationID};
     `;
 
-    db.query(sql, [Quantity, Expiration, ingredientID, locationID], (err) => {
+    db.query(sql, (err) => {
         if (err) {
             console.error('Error updating inventory item:', err);
             return res.status(500).json({ error: 'Database update failed.' });

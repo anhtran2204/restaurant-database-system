@@ -56,5 +56,32 @@
 
         <script src="reservation_form.js"></script>
     </div>
+    <!-- Edit Reservation Modal -->
+    <div id="reservationEditModal" class="popup-overlay">
+        <div class="popup-content">
+            <span class="close-btn" onclick="closeEditReservationModal()">&times;</span>
+            <h3>Edit Reservation</h3>
+            <form id="editReservationForm">
+                <label for="editResID">Reservation ID:</label>
+                <input type="number" id="editResID" name="resID" readonly>
+
+                <label for="editResName">Reservation Name:</label>
+                <input type="text" id="editResName" name="resName" required>
+
+                <label for="editResInfo">Reservation Date & Time:</label>
+                <input type="datetime-local" id="editResInfo" name="resInfo" required>
+
+                <label for="editHostID">Host ID:</label>
+                <input type="number" id="editHostID" name="hostID" required>
+
+                <button type="button" onclick="submitEditReservation()">Save Changes</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2021 Restaurant Management System. All Rights Reserved.</p>
+    </footer>
 </body>
 </html>

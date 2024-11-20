@@ -61,5 +61,35 @@
 
         <script src="waitlist_form.js"></script>
     </div>
+    <!-- Edit Waitlist Modal -->
+    <div id="waitlistEditModal" class="popup-overlay">
+        <div class="popup-content">
+            <span class="close-btn" onclick="closeEditWaitlistModal()">&times;</span>
+            <h3>Edit Waitlist Entry</h3>
+            <form id="editWaitlistForm">
+                <label for="editWaitlistID">Waitlist ID:</label>
+                <input type="number" id="editWaitlistID" readonly>
+
+                <label for="editWaitName">Name:</label>
+                <input type="text" id="editWaitName" required>
+
+                <label for="editPhoneNumber">Phone Number:</label>
+                <input type="tel" id="editPhoneNumber" pattern="\(\d{3}\) \d{3}-\d{4}" placeholder="(###) ###-####" required>
+
+                <label for="editPartySize">Party Size:</label>
+                <input type="number" id="editPartySize" required>
+
+                <label for="editHostID">Host ID:</label>
+                <input type="number" id="editHostID" required>
+
+                <button type="button" onclick="submitEditWaitlist()">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2021 Restaurant Management System. All Rights Reserved.</p>
+    </footer>
 </body>
 </html>

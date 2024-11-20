@@ -13,6 +13,7 @@ function fetchWaitlist() {
                     <td>${entry.PartySize}</td>
                     <td>${entry.HostID}</td>
                     <td>
+                        <button onclick="editWaitlist(${entry.WaitlistID})">Edit</button>
                         <button onclick="deleteWaitlist(${entry.WaitlistID})">Delete</button>
                     </td>
                 `;
@@ -46,6 +47,69 @@ function saveWaitlistEntry() {
             }
         })
         .catch(error => console.error('Error saving waitlist entry:', error));
+}
+
+function editWaitlist(waitlistID) {
+    fetch(`/api/waitlist/${waitlistID}`)
+        .then(response => response.json())
+        .then(entry => {
+            if (entry) {
+                document.getElementById('editWaitlistID').value = entry.WaitlistID;
+                document.getElementById('editWaitName').value = entry.WaitName;
+                document.getElementById('editPhoneNumber').value = entry.PhoneNumber;
+                document.getElementById('editPartySize').value = entry.PartySize;
+                document.getElementById('editHostID').value = entry.HostID;
+
+                document.getElementById('waitlistEditModal').style.display = 'flex';
+                
+                document.addEventListener('click', closeModalOnOutsideClick);
+            }
+        })
+        .catch(error => console.error('Error fetching waitlist entry:', error));
+}
+
+function submitEditWaitlist() {
+    const waitlistID = document.getElementById('editWaitlistID').value;
+
+    const updatedWaitlistData = {
+        WaitName: document.getElementById('editWaitName').value,
+        PhoneNumber: document.getElementById('editPhoneNumber').value,
+        PartySize: document.getElementById('editPartySize').value,
+        HostID: document.getElementById('editHostID').value,
+    };
+
+    fetch(`/api/waitlist/${waitlistID}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedWaitlistData),
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert('Waitlist entry updated successfully');
+                closeEditWaitlistModal();
+                fetchWaitlist();
+            } else {
+                alert('Error updating waitlist entry');
+            }
+        })
+        .catch(error => console.error('Error updating waitlist entry:', error));
+}
+
+function closeModalOnOutsideClick(event) {
+    const modal = document.getElementById('waitlistEditModal');
+    const modalContent = document.querySelector('.popup-content');
+
+    // Check if the clicked target is the modal overlay but not the modal content
+    if (event.target === modal) {
+        closeEditWaitlistModal();
+    }
+}
+
+function closeEditWaitlistModal() {
+    document.getElementById('waitlistEditModal').style.display = 'none';
+    document.getElementById('editWaitlistForm').reset();
+    document.removeEventListener('click', closeModalOnOutsideClick);
 }
 
 function deleteWaitlist(waitlistID) {

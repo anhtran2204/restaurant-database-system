@@ -58,6 +58,32 @@
         </table>
         <script src="employee_worktime.js"></script>
     </div>
+    <!-- Edit Worktime Modal -->
+    <div id="worktimeEditModal" class="popup-overlay">
+        <div class="popup-content">
+            <span class="close-btn" onclick="closeEditWorktimeModal()">&times;</span>
+            <h3>Edit Worktime</h3>
+            <form id="editWorktimeForm">
+                <label for="editEmployeeID">Employee ID:</label>
+                <input type="text" id="editEmployeeID" name="employeeID" readonly>
+
+                <label for="editFullName">Employee Name:</label>
+                <input type="text" id="editFullName" name="fullName" readonly>
+
+                <label for="editClockedStart">Clocked Start:</label>
+                <input type="datetime-local" id="editClockedStart" name="clockedStart" required>
+
+                <label for="editClockedEnd">Clocked End:</label>
+                <input type="datetime-local" id="editClockedEnd" name="clockedEnd" required>
+
+                <button type="button" onclick="submitEditWorktime()">Save Changes</button>
+            </form>
+        </div>
+    </div>
     
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2021 Restaurant Management System. All Rights Reserved.</p>
+    </footer>
 </body>
 </html>

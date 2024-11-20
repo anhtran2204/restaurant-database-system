@@ -52,36 +52,40 @@ function populateScheduleTable(data, startDate) {
 
     data.forEach(employee => {
         const row = document.createElement('tr');
+
+        // Add employee name
         const nameCell = document.createElement('td');
         nameCell.textContent = employee.FullName;
         row.appendChild(nameCell);
 
+        // Add schedule for each day of the week
         for (let i = 0; i < 7; i++) {
-            const cell = document.createElement('td');
+            const dayCell = document.createElement('td');
             const currentDate = new Date(startDate);
             currentDate.setDate(currentDate.getDate() + i);
-            const dateStr = currentDate.toISOString().split('T')[0];
+            const dayOfWeek = currentDate.toLocaleDateString('en-US', { weekday: 'long' });
 
-            const scheduleForDay = employee.schedules.find(s => s.date.startsWith(dateStr));
-            if (scheduleForDay) {
-                cell.innerHTML = `
+            const schedule = employee.schedules[i];
+            if (schedule && schedule.startTime) {
+                dayCell.innerHTML = `
                     <div class="schedule-content">
-                        <div>${scheduleForDay.ShiftType}</div>
-                        <div>${scheduleForDay.StartTime} - ${scheduleForDay.EndTime}</div>
-                        <div>${scheduleForDay.Position}</div>
+                        <div>${schedule.shiftType}</div>
+                        <div>${schedule.startTime} - ${schedule.endTime}</div>
+                        <div>${schedule.position || 'No Position'}</div>
                     </div>
                 `;
-                cell.classList.add('scheduled-cell');
+                dayCell.classList.add('scheduled-cell');
             } else {
-                cell.innerHTML = `<div class="off-content">Off</div>`;
-                cell.classList.add('off-cell');
+                dayCell.innerHTML = `<div class="off-content">Off</div>`;
+                dayCell.classList.add('off-cell');
             }
-            row.appendChild(cell);
+
+            row.appendChild(dayCell);
         }
+
         tbody.appendChild(row);
     });
 }
-
 
 function fetchSchedule(startDate) {
     const weekStartDate = startDate.toISOString().split('T')[0];
@@ -89,6 +93,7 @@ function fetchSchedule(startDate) {
     fetch(`/api/schedule?weekStartDate=${weekStartDate}`)
         .then(response => response.json())
         .then(data => {
+            console.log('Fetched schedule data:', data); // Debugging log
             if (data.error) {
                 console.error('Error fetching schedule:', data.error);
                 return;
@@ -98,49 +103,121 @@ function fetchSchedule(startDate) {
         .catch(error => console.error('Error fetching schedule:', error));
 }
 
-
 function showGenerateScheduleModal() {
-    fetch('/api/availability')
+    // Fetch employee availability from the API
+    fetch('/api/employees')
         .then(response => response.json())
-        .then(data => {
-            Object.keys(data).forEach(day => {
-                const container = document.getElementById(day);
-                container.innerHTML = ''; // Clear previous content
-                data[day].forEach(employee => {
-                    const checkbox = document.createElement('input');
-                    checkbox.type = 'checkbox';
-                    checkbox.value = employee.ID;
-                    checkbox.id = `${day}-${employee.ID}`;
+        .then(employees => {
+            if (employees.error) {
+                console.error('Error fetching employees:', employees.error);
+                return;
+            }
 
-                    const label = document.createElement('label');
-                    label.htmlFor = `${day}-${employee.ID}`;
-                    label.textContent = employee.FullName;
+            // Populate each tab with available employees
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            days.forEach(day => {
+                const tabContent = document.getElementById(day);
+                tabContent.innerHTML = ''; // Clear existing content
 
-                    // Ensure checkbox comes before the label
-                    const listItem = document.createElement('div');
-                    listItem.className = 'employee-item'; // Scoped styling will apply
-                    listItem.appendChild(checkbox);
-                    listItem.appendChild(label);
+                employees.forEach(employee => {
+                    const availableDays = employee.AvailableDays.split(',');
+                    if (availableDays.includes(day)) {
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.value = JSON.stringify({
+                            id: employee.ID,
+                            fullName: employee.fname + ' ' + employee.lname,
+                            position: employee.position,
+                            ShiftType: employee.ShiftType,
+                            startTime: employee.StartTime,
+                            endTime: employee.EndTime
+                        });
+                        checkbox.name = 'employee';
 
-                    container.appendChild(listItem);
+                        const label = document.createElement('label');
+                        label.textContent = `
+                            ${employee.fname} 
+                            ${employee.lname} 
+                            (${employee.ShiftType})`;
+
+                        const container = document.createElement('div');
+                        container.appendChild(checkbox);
+                        container.appendChild(label);
+
+                        tabContent.appendChild(container);
+                    }
                 });
-
-                // Show only Monday's list initially
-                if (day === 'Monday') {
-                    container.style.display = 'block';
-                } else {
-                    container.style.display = 'none';
-                }
             });
 
+            // Display the modal
             document.getElementById('generateScheduleModal').style.display = 'flex';
+
+            // Add event listener for clicks outside the modal
+            document.addEventListener('click', closeModalOnOutsideClick);
         })
-        .catch(error => console.error('Error fetching availability:', error));
+        .catch(error => console.error('Error fetching employees:', error));
 }
 
+function closeModalOnOutsideClick(event) {
+    const modal = document.getElementById('generateScheduleModal');
+    const modalContent = document.querySelector('.popup-content');
+
+    // Check if the clicked target is the modal overlay but not the modal content
+    if (event.target === modal) {
+        closeGenerateScheduleModal();
+    }
+}
 
 function closeGenerateScheduleModal() {
-    document.getElementById('generateScheduleModal').style.display = 'none';
+    const modal = document.getElementById('generateScheduleModal');
+    modal.style.display = 'none';
+    
+    // Remove the event listener to prevent memory leaks
+    document.removeEventListener('click', closeModalOnOutsideClick);
+}
+
+function generateSchedule() {
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const scheduleData = [];
+
+    days.forEach(day => {
+        const tabContent = document.getElementById(day);
+        const selectedEmployees = tabContent.querySelectorAll('input[type="checkbox"]:checked');
+
+        selectedEmployees.forEach(checkbox => {
+            const employeeData = JSON.parse(checkbox.value);
+            scheduleData.push({
+                id: employeeData.id,
+                weekStartDate: currentWeekStartDate.toISOString().split('T')[0], // Include weekStartDate
+                day,
+                startTime: employeeData.startTime || '09:00:00', // Default value
+                endTime: employeeData.endTime || '17:00:00', // Default value
+                ShiftType: employeeData.ShiftType,
+                position: employeeData.position
+            });
+        });
+    });
+
+    // Send the generated schedule data to the server
+    fetch('/api/schedule', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ schedule: scheduleData })
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                console.error('Error generating schedule:', data.error);
+                return;
+            }
+
+            console.log('Schedule successfully generated:', data.message);
+
+            // Refresh the calendar view
+            fetchSchedule(currentWeekStartDate);
+            closeGenerateScheduleModal();
+        })
+        .catch(error => console.error('Error posting schedule:', error));
 }
 
 function openTab(event, day) {
@@ -153,59 +230,6 @@ function openTab(event, day) {
     document.getElementById(day).style.display = 'block';
     event.currentTarget.classList.add('active');
 }
-
-function generateSchedule() {
-    const schedule = {};
-    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-
-    // Collect selected employees for each day
-    days.forEach(day => {
-        const selectedEmployees = Array.from(document.querySelectorAll(`#${day} input:checked`))
-            .map(checkbox => ({
-                ID: checkbox.value,
-                FullName: checkbox.nextElementSibling.textContent // Employee name
-            }));
-
-        schedule[day] = selectedEmployees;
-    });
-
-    // Prepare schedule data for the backend
-    const weekStartDate = currentWeekStartDate.toISOString().split('T')[0];
-    const scheduleEntries = [];
-    days.forEach((day, index) => {
-        const dayDate = new Date(currentWeekStartDate);
-        dayDate.setDate(currentWeekStartDate.getDate() + index); // Get the date for each day
-
-        schedule[day].forEach(employee => {
-            scheduleEntries.push({
-                EmployeeID: employee.ID,
-                AvDate: dayDate.toISOString().split('T')[0],
-                StartTime: '09:00:00', // Example start time
-                EndTime: '17:00:00',  // Example end time
-                ShiftType: 'Morning'  // Example shift type
-            });
-        });
-    });
-
-    // Send schedule data to the backend
-    const promises = scheduleEntries.map(entry =>
-        fetch('/api/schedule', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(entry)
-        })
-    );
-
-    Promise.all(promises)
-        .then(() => {
-            console.log('Schedule saved successfully.');
-            renderCalendar(); // Reload the calendar to reflect changes
-            closeGenerateScheduleModal();
-        })
-        .catch(error => console.error('Error saving schedule:', error));
-}
-
-
 
 document.addEventListener('DOMContentLoaded', () => {
     renderCalendar(); // Correctly initializes the calendar

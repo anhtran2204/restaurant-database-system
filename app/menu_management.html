@@ -44,6 +44,7 @@
         <table id="menuTable">
             <thead>
                 <tr>
+                    <th>Item ID</th>
                     <th>Name</th>
                     <th>Price</th>
                     <th>Recipe</th>
@@ -56,5 +57,32 @@
 
         <script src="menu_management.js"></script>
     </div>
+    <!-- Edit Menu Item Modal -->
+    <div id="menuEditModal" class="popup-overlay">
+        <div class="popup-content">
+            <span class="close-btn" onclick="closeEditMenuModal()">&times;</span>
+            <h3>Edit Menu Item</h3>
+            <form id="editMenuForm">
+                <label for="editMname">Menu Item Name:</label>
+                <input type="text" id="editMname" name="mname" readonly>
+
+                <label for="editPrice">Price:</label>
+                <input type="number" step="0.01" id="editPrice" name="price" required>
+
+                <label for="editRecipe">Recipe:</label>
+                <textarea id="editRecipe" name="recipe"></textarea>
+
+                <label for="editDescr">Description:</label>
+                <textarea id="editDescr" name="descr"></textarea>
+
+                <button type="button" onclick="submitEditMenu()">Save Changes</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2021 Restaurant Management System. All Rights Reserved.</p>
+    </footer>
 </body>
 </html>

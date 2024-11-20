@@ -22,20 +22,20 @@ TRUNCATE TABLE Menu_item;
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- Insert data into Employees table (ensure unique IDs)
-INSERT INTO Employees (ID, fname, minit, lname, dob, position, hoursPerWeek, Salary, Rate)
+INSERT INTO Employees (ID, fname, minit, lname, dob, AvailableDays, position, shiftType, hoursPerWeek, Salary, Rate)
 VALUES
-    (28, 'Gordon', 'J', 'Ramsay', '1970-11-08', 'Head Chef', 40, 70000, NULL),
-    (29, 'Susie', 'K', 'Diann', '1980-05-15', 'Pastry Chef', 40, 62000, NULL),
-    (30, 'Guy', 'R', 'Fieri', '1968-01-22', 'Sous Chef', 40, 65000, NULL),
-    (31, 'Robert', 'B', 'Squarepants', '1990-04-12', 'Line Cook', 32, NULL, 18),
-    (18, 'Angelica', 'P', 'Vance', '1992-09-18', 'Server', 20, NULL, 16),
-    (32, 'Donnie', 'M', 'Key', '1988-07-11', 'Host', 22, NULL, 20),
-    (45, 'Linda', 'S', 'Brown', '1995-02-05', 'Server', 25, NULL, 18),
-    (3, 'Alice', 'A', 'Brown', '1992-08-15', 'Manager', 40, 50000, NULL),
-    (4, 'Jane', 'M', 'Smith', '1985-05-20', 'Chef', 40, 40000, NULL),
-    (5, 'John', 'D', 'Doe', '1990-01-01', 'Server', 40, 30000, NULL),
-    (1, 'John', 'A', 'Doe', '1985-05-15', 'Chef', 40, 50000, 25.00),
-    (2, 'Jane', 'B', 'Smith', '1990-08-20', 'Waiter', 20, NULL, 15.00);
+    (28, 'Gordon', 'J', 'Ramsay', '1970-11-08', 'Monday,Tuesday,Wednesday', 'Head Chef', 'Morning', 40, 70000, NULL),
+    (29, 'Susie', 'K', 'Diann', '1980-05-15', 'Thursday,Friday,Saturday', 'Pastry Chef', 'Dinner', 40, 62000, NULL),
+    (30, 'Guy', 'R', 'Fieri', '1968-01-22', 'Sunday,Monday', 'Sous Chef', 'Morning', 40, 65000, NULL),
+    (31, 'Robert', 'B', 'Squarepants', '1990-04-12', 'Monday,Tuesday,Wednesday', 'Line Cook', 'Dinner', 32, NULL, 18),
+    (18, 'Angelica', 'P', 'Vance', '1992-09-18', 'Sunday,Monday', 'Server', 'Morning', 20, NULL, 16),
+    (32, 'Donnie', 'M', 'Key', '1988-07-11', 'Thursday,Friday,Saturday', 'Host', 'Dinner', 22, NULL, 20),
+    (45, 'Linda', 'S', 'Brown', '1995-02-05', 'Monday,Tuesday,Wednesday', 'Server', 'Morning', 25, NULL, 18),
+    (3, 'Alice', 'A', 'Brown', '1992-08-15', 'Monday,Tuesday,Wednesday', 'Manager', 'Morning', 40, 50000, NULL),
+    (4, 'Jane', 'M', 'Smith', '1985-05-20', 'Thursday,Friday,Saturday', 'Chef', 'Dinner', 40, 40000, NULL),
+    (5, 'John', 'D', 'Doe', '1990-01-01', 'Sunday,Monday', 'Server', 'Dinner', 40, 30000, NULL),
+    (1, 'John', 'A', 'Doe', '1985-05-15', 'Tuesday,Wednesday,Thursday', 'Chef', 'Morning', 40, 50000, 25.00),
+    (2, 'Donna', 'B', 'Smith', '1990-08-20', 'Tuesday,Wednesday,Thursday', 'Server', 'Dinner', 20, NULL, 15.00);
 
 -- Insert data into Manages table
 INSERT INTO Manages (ManagerID, EmployeeID)
@@ -43,41 +43,28 @@ VALUES
     (28, 32), (28, 18), (30, 29), (28, 45);
 
 -- Insert data into Schedule table
-INSERT INTO Schedule (EmployeeID, WeekStartDate, DayOfWeek, StartTime, EndTime, ShiftType)
-VALUES
-    (1, '2024-11-18', 'Monday', '09:00:00', '17:00:00', 'Morning'),
-    (2, '2024-11-18', 'Thursday', '16:00:00', '20:00:00', 'Dinner'),
-    (3, '2024-11-18', 'Wednesday', '08:00:00', '16:00:00', 'Morning'),
-    (4, '2024-11-18', 'Friday', '12:00:00', '20:00:00', 'Dinner'),
-    (5, '2024-11-18', 'Saturday', '10:00:00', '18:00:00', 'Morning'),
-    (28, '2024-11-18', 'Monday', '09:00:00', '17:00:00', 'Morning'),
-    (29, '2024-11-18', 'Thursday', '16:00:00', '20:00:00', 'Dinner'),
-    (30, '2024-11-18', 'Wednesday', '08:00:00', '16:00:00', 'Morning'),
-    (31, '2024-11-18', 'Friday', '12:00:00', '20:00:00', 'Dinner'),
-    (18, '2024-11-18', 'Saturday', '10:00:00', '18:00:00', 'Morning'),
-    (45, '2024-11-18', 'Sunday', '08:00:00', '16:00:00', 'Morning');
-
--- Load test data for Availability
-INSERT INTO Availability (EmployeeID, AvailableDays, ShiftType)
-VALUES
-    (3, 'Monday,Tuesday,Wednesday', 'Morning'),
-    (4, 'Thursday,Friday,Saturday', 'Dinner'),
-    (5, 'Sunday,Monday', 'Morning'),
-    (28, 'Monday,Tuesday,Wednesday', 'Morning'),
-    (29, 'Thursday,Friday,Saturday', 'Dinner'),
-    (30, 'Sunday,Monday', 'Morning'),
-    (31, 'Monday,Tuesday,Wednesday', 'Morning'),
-    (32, 'Thursday,Friday,Saturday', 'Dinner'),
-    (18, 'Sunday,Monday', 'Morning'),
-    (45, 'Monday,Tuesday,Wednesday', 'Morning');
+-- INSERT INTO Schedule (EmployeeID, WeekStartDate, DayOfWeek, StartTime, EndTime, shiftType, position)
+-- VALUES
+--     (1, '2024-11-18', 'Monday', '09:00:00', '17:00:00', 'Morning', 'Chef'),
+--     (2, '2024-11-18', 'Thursday', '16:00:00', '20:00:00', 'Dinner', 'Server'),
+--     (3, '2024-11-18', 'Wednesday', '08:00:00', '16:00:00', 'Morning', 'Manager'),
+--     (4, '2024-11-18', 'Friday', '12:00:00', '20:00:00', 'Dinner', 'Chef'),
+--     (5, '2024-11-18', 'Saturday', '10:00:00', '18:00:00', 'Dinner', 'Server'),
+--     (28, '2024-11-18', 'Monday', '09:00:00', '17:00:00', 'Morning', 'Head Chef'),
+--     (29, '2024-11-18', 'Thursday', '16:00:00', '20:00:00', 'Dinner', 'Pastry Chef'),
+--     (30, '2024-11-18', 'Wednesday', '08:00:00', '16:00:00', 'Morning', 'Sous Chef'),
+--     (31, '2024-11-18', 'Friday', '12:00:00', '20:00:00', 'Dinner', 'Line Cook'),
+--     (18, '2024-11-18', 'Saturday', '10:00:00', '18:00:00', 'Morning', 'Server'),
+--     (32, '2024-11-18', 'Sunday', '08:00:00', '16:00:00', 'Dinner', 'Host'),
+--     (45, '2024-11-18', 'Sunday', '08:00:00', '16:00:00', 'Morning', 'Server');
 
 -- Insert data into Clocked_Times table
-INSERT INTO Clocked_Times (ClockID, EmployeeID, ClockedStart, ClockedEnd)
+INSERT INTO Clocked_Times (EmployeeID, ClockedStart, ClockedEnd)
 VALUES
-    (3, 32, '2024-10-22 08:28:00', '2024-10-22 19:47:00'),
-    (4, 18, '2024-10-23 09:10:00', '2024-10-23 16:50:00'), 
-    (5, 45, '2024-10-24 10:10:00', '2024-10-24 18:20:00'), 
-    (6, 28, '2024-10-25 12:35:00', '2024-10-25 21:50:00');
+    (32, '2024-10-22 08:28:00', '2024-10-22 19:47:00'),
+    (18, '2024-10-23 09:10:00', '2024-10-23 16:50:00'), 
+    (45, '2024-10-24 10:10:00', '2024-10-24 18:20:00'), 
+    (28, '2024-10-25 12:35:00', '2024-10-25 21:50:00');
 
 -- Insert data into Cook table
 INSERT INTO Cook (EmployeeID, fname, lname, Specialty)

@@ -1,5 +1,15 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 /* General Styling */
 body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     font-family: Arial, sans-serif;
     background-color: #f3f4f6;
     color: #333;
@@ -7,6 +17,12 @@ body {
     overflow-x: hidden;
     margin: 0;
     padding: 0;
+}
+
+.page-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
 /* Header Styling */
@@ -17,6 +33,16 @@ header {
     color: white;
     font-size: 1.8rem;
     margin: 0;
+}
+
+footer {
+    background-color: #1c87c9;
+    padding: 1.25rem;
+    text-align: center;
+    color: white;
+    font-size: 1.2rem;
+    margin: 0;
+    position: relative;
 }
 
 /* Navigation Bar */
@@ -76,6 +102,33 @@ div#calendarControls {
 div#calendarControls button {
     padding: 0.5rem 1rem;
     margin: 0 0.5rem;
+}
+
+/* Main Content */
+main.welcome-container {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 2rem auto;
+    max-width: 800px;
+    padding: 2rem;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+main h2 {
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+main p {
+    font-size: 1.1rem;
+    color: #555;
+    margin-bottom: 2rem;
 }
 
 /* Page Title Styling */

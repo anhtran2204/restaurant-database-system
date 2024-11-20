@@ -60,5 +60,34 @@
 
         <script src="inventory_management.js"></script>
     </div>
+    <!-- Edit Inventory Modal -->
+    <div id="inventoryEditModal" class="popup-overlay">
+        <div class="popup-content">
+            <span class="close-btn" onclick="closeEditInventoryModal()">&times;</span>
+            <h3>Edit Inventory</h3>
+            <form id="editInventoryForm">
+                <label for="editIngredientID">Ingredient ID:</label>
+                <input type="text" id="editIngredientID" name="ingredientID" readonly>
+
+                <label for="editIngredientName">Ingredient Name:</label>
+                <input type="text" id="editIngredientName" name="ingredientName" required>
+
+                <label for="editLocationID">Location ID:</label>
+                <input type="number" id="editLocationID" name="locationID" readonly>
+
+                <label for="editQuantity">Quantity:</label>
+                <input type="number" id="editQuantity" name="quantity" required>
+
+                <label for="editExpiration">Expiration Date:</label>
+                <input type="date" id="editExpiration" name="expiration" required>
+
+                <button type="button" onclick="submitEditInventory()">Save Changes</button>
+            </form>
+        </div>
+    </div>
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2021 Restaurant Management System. All Rights Reserved.</p>
+    </footer>
 </body>
 </html>

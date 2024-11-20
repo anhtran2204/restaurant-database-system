@@ -54,31 +54,64 @@ function saveInventory() {
 }
 
 function editInventory(ingredientID, locationID) {
-    const quantity = prompt('Enter new quantity:');
-    const expiration = prompt('Enter new expiration date (YYYY-MM-DD):');
+    fetch(`/api/inventory/${ingredientID}/${locationID}`)
+        .then(response => response.json())
+        .then(item => {
+            if (item) {
+                document.getElementById('editIngredientID').value = item.IngredientID;
+                document.getElementById('editIngredientName').value = item.IngredientName;
+                document.getElementById('editLocationID').value = item.LocationID;
+                document.getElementById('editQuantity').value = item.Quantity;
+                document.getElementById('editExpiration').value = new Date(item.Expiration).toISOString().split('T')[0];
 
-    if (quantity && expiration) {
-        const updatedData = {
-            Quantity: parseInt(quantity, 10),
-            Expiration: expiration
-        };
-
-        fetch(`/api/inventory/${ingredientID}/${locationID}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(updatedData)
+                document.getElementById('inventoryEditModal').style.display = 'flex';
+                document.addEventListener('click', closeModalOnOutsideClick);
+            }
         })
+        .catch(error => console.error('Error fetching inventory item:', error));
+}
+
+function submitEditInventory() {
+    const ingredientID = document.getElementById('editIngredientID').value;
+    const locationID = document.getElementById('editLocationID').value;
+
+    const updatedInventoryData = {
+        Quantity: parseInt(document.getElementById('editQuantity').value, 10),
+        Expiration: document.getElementById('editExpiration').value
+    };
+
+    fetch(`/api/inventory/${ingredientID}/${locationID}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedInventoryData)
+    })
         .then(response => response.json())
         .then(data => {
             if (data.status === 'success') {
                 alert('Inventory item updated successfully');
+                closeEditInventoryModal();
                 fetchInventory();
             } else {
                 alert('Error updating inventory item');
             }
         })
         .catch(error => console.error('Error updating inventory item:', error));
+}
+
+function closeModalOnOutsideClick(event) {
+    const modal = document.getElementById('inventoryEditModal');
+    const modalContent = document.querySelector('.popup-content');
+
+    // Check if the clicked target is the modal overlay but not the modal content
+    if (event.target === modal) {
+        closeEditInventoryModal();
     }
+}
+
+function closeEditInventoryModal() {
+    document.getElementById('inventoryEditModal').style.display = 'none';
+    document.getElementById('editInventoryForm').reset();
+    document.removeEventListener('click', closeModalOnOutsideClick);
 }
 
 function deleteInventory(ingredientID, locationID) {
