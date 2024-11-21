@@ -67,15 +67,29 @@ function populateScheduleTable(data, startDate) {
 
             const schedule = employee.schedules[i];
             if (schedule && schedule.startTime) {
+                // Add editable schedule information
                 dayCell.innerHTML = `
                     <div class="schedule-content">
                         <div>${schedule.shiftType}</div>
                         <div>${schedule.startTime} - ${schedule.endTime}</div>
                         <div>${schedule.position || 'No Position'}</div>
+                        <button onclick="openEditScheduleModal(
+                            '${employee.ID}', 
+                            '${dayOfWeek}', 
+                            '${schedule.shiftType}', 
+                            '${schedule.startTime}', 
+                            '${schedule.endTime}', 
+                            '${schedule.position || ''}'
+                        )">Edit</button>
+                        <button onclick="removeEmployeeFromSchedule(
+                            '${employee.ID}', 
+                            '${dayOfWeek}'
+                        )">Remove</button>
                     </div>
                 `;
                 dayCell.classList.add('scheduled-cell');
             } else {
+                // Add "Off" for empty schedule
                 dayCell.innerHTML = `<div class="off-content">Off</div>`;
                 dayCell.classList.add('off-cell');
             }
@@ -87,10 +101,40 @@ function populateScheduleTable(data, startDate) {
     });
 }
 
-function fetchSchedule(startDate) {
-    const weekStartDate = startDate.toISOString().split('T')[0];
+// Fetch unique locationIDs and populate dropdown
+function loadLocationFilter() {
+    fetch('/api/schedule/locations')
+        .then(response => response.json())
+        .then(locations => {
+            const locationFilter = document.getElementById('locationFilter');
+            locationFilter.innerHTML = ''; // Clear existing options
 
-    fetch(`/api/schedule?weekStartDate=${weekStartDate}`)
+            // Add "All Locations" option (if needed)
+            const allOption = document.createElement('option');
+            allOption.value = '';
+            allOption.textContent = 'All Locations';
+            locationFilter.appendChild(allOption);
+
+            // Add options for each location
+            locations.forEach(location => {
+                const option = document.createElement('option');
+                option.value = location.LocationID;
+                option.textContent = `Location ${location.LocationID}`;
+                locationFilter.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Error fetching locations:', error));
+}
+
+function fetchSchedule(startDate) {
+    const locationID = document.getElementById('locationFilter').value; // Get selected location
+    const weekStartDate = currentWeekStartDate.toISOString().split('T')[0]; // Current week start date
+
+    const fetchUrl = locationID
+        ? `/api/schedule?weekStartDate=${weekStartDate}&locationID=${locationID}`
+        : `/api/schedule?weekStartDate=${weekStartDate}`;
+
+    fetch(fetchUrl)
         .then(response => response.json())
         .then(data => {
             console.log('Fetched schedule data:', data); // Debugging log
@@ -104,8 +148,15 @@ function fetchSchedule(startDate) {
 }
 
 function showGenerateScheduleModal() {
+    const locationID = document.getElementById('locationFilter').value;
+
+    if (!locationID) {
+        alert('Please select a location to generate a schedule.');
+        return;
+    }
+
     // Fetch employee availability from the API
-    fetch('/api/employees')
+    fetch(`/api/employees?locationID=${locationID}`)
         .then(response => response.json())
         .then(employees => {
             if (employees.error) {
@@ -158,20 +209,10 @@ function showGenerateScheduleModal() {
         .catch(error => console.error('Error fetching employees:', error));
 }
 
-function closeModalOnOutsideClick(event) {
-    const modal = document.getElementById('generateScheduleModal');
-    const modalContent = document.querySelector('.popup-content');
-
-    // Check if the clicked target is the modal overlay but not the modal content
-    if (event.target === modal) {
-        closeGenerateScheduleModal();
-    }
-}
-
 function closeGenerateScheduleModal() {
     const modal = document.getElementById('generateScheduleModal');
     modal.style.display = 'none';
-    
+    document.getElementById('editEmployeeForm').reset();
     // Remove the event listener to prevent memory leaks
     document.removeEventListener('click', closeModalOnOutsideClick);
 }
@@ -220,6 +261,81 @@ function generateSchedule() {
         .catch(error => console.error('Error posting schedule:', error));
 }
 
+function openEditScheduleModal(employeeID, dayOfWeek, shiftType, startTime, endTime, position) {
+    const modal = document.getElementById('editScheduleModal');
+    modal.style.display = 'flex';
+
+    // Populate modal fields with the selected shift data
+    document.getElementById('editEmployeeID').value = employeeID;
+    document.getElementById('editDayOfWeek').value = dayOfWeek;
+    document.getElementById('editShiftType').value = shiftType;
+    document.getElementById('editStartTime').value = startTime;
+    document.getElementById('editEndTime').value = endTime;
+    document.getElementById('editPosition').value = position || '';
+}
+
+function closeEditScheduleModal() {
+    const modal = document.getElementById('editScheduleModal');
+    modal.style.display = 'none';
+    document.removeEventListener('click', closeModalOnOutsideClick);
+}
+
+function removeEmployeeFromSchedule(employeeID, dayOfWeek) {
+    if (confirm('Are you sure you want to remove this employee from the schedule?')) {
+        fetch(`/api/schedule`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ employeeID, dayOfWeek, weekStartDate: currentWeekStartDate.toISOString().split('T')[0] })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert('Employee removed from the schedule successfully!');
+                fetchSchedule(currentWeekStartDate); // Refresh schedule
+            } else {
+                console.error('Failed to remove employee:', data.error);
+            }
+        })
+        .catch(error => console.error('Error removing employee:', error));
+    }
+}
+
+function updateSchedule(event) {
+    event.preventDefault();
+
+    const employeeID = document.getElementById('editEmployeeID').value;
+    const dayOfWeek = document.getElementById('editDayOfWeek').value;
+    const shiftType = document.getElementById('editShiftType').value;
+    const startTime = document.getElementById('editStartTime').value;
+    const endTime = document.getElementById('editEndTime').value;
+    const position = document.getElementById('editPosition').value;
+
+    fetch(`/api/schedule`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            employeeID,
+            weekStartDate: currentWeekStartDate.toISOString().split('T')[0],
+            dayOfWeek,
+            shiftType,
+            startTime,
+            endTime,
+            position
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert('Schedule updated successfully!');
+            closeEditScheduleModal();
+            fetchSchedule(currentWeekStartDate); // Refresh schedule
+        } else {
+            console.error('Failed to update schedule:', data.error);
+        }
+    })
+    .catch(error => console.error('Error updating schedule:', error));
+}
+
 function openTab(event, day) {
     const tabContents = document.querySelectorAll('.tabcontent');
     tabContents.forEach(tab => tab.style.display = 'none');
@@ -231,7 +347,23 @@ function openTab(event, day) {
     event.currentTarget.classList.add('active');
 }
 
+function closeModalOnOutsideClick(event) {
+    const generateModal = document.getElementById('generateScheduleModal');
+    const editmodal = document.getElementById('editScheduleModal');
+    const modalContent = document.querySelector('.popup-content');
+
+    // Check if the clicked target is the modal overlay but not the modal content
+    if (event.target === editmodal) {
+        closeEditScheduleModal();
+    }
+
+    if (event.target === generateModal) {
+        closeGenerateScheduleModal();
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    loadLocationFilter()
     renderCalendar(); // Correctly initializes the calendar
     // Ensure no code unintentionally calls showGenerateScheduleModal
     fetchSchedule(currentWeekStartDate, new Date(currentWeekStartDate), new Date(currentWeekStartDate));

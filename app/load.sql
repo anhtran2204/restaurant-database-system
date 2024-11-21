@@ -37,34 +37,33 @@ VALUES
     (1, 'John', 'A', 'Doe', '1985-05-15', 'Tuesday,Wednesday,Thursday', 'Chef', 'Morning', 40, 50000, 25.00),
     (2, 'Donna', 'B', 'Smith', '1990-08-20', 'Tuesday,Wednesday,Thursday', 'Server', 'Dinner', 20, NULL, 15.00);
 
+-- Insert data into Location table
+INSERT INTO Location (LocationID, Address, Region)
+VALUES
+    (5, '4172 Thrash Trail, Dallas, TX', 'North Texas'),
+    (6, '500 Elm St, Austin, TX', 'Central Texas'), 
+    (7, '202 Pine Ln, Houston, TX', 'South Texas'), 
+    (8, '303 Sunset Blvd, San Antonio, TX', 'West Texas');
+
+-- Insert data into Works_at table
+INSERT INTO Works_at (EmployeeID, LocationID)
+VALUES
+    (28, 5), (29, 5), (30, 6), (31, 7), (32, 7), 
+    (18, 8), (45, 5), (3, 5), (4, 6), (5, 7), 
+    (1, 8), (2, 8);
+
 -- Insert data into Manages table
 INSERT INTO Manages (ManagerID, EmployeeID)
 VALUES
     (28, 32), (28, 18), (30, 29), (28, 45);
 
--- Insert data into Schedule table
--- INSERT INTO Schedule (EmployeeID, WeekStartDate, DayOfWeek, StartTime, EndTime, shiftType, position)
--- VALUES
---     (1, '2024-11-18', 'Monday', '09:00:00', '17:00:00', 'Morning', 'Chef'),
---     (2, '2024-11-18', 'Thursday', '16:00:00', '20:00:00', 'Dinner', 'Server'),
---     (3, '2024-11-18', 'Wednesday', '08:00:00', '16:00:00', 'Morning', 'Manager'),
---     (4, '2024-11-18', 'Friday', '12:00:00', '20:00:00', 'Dinner', 'Chef'),
---     (5, '2024-11-18', 'Saturday', '10:00:00', '18:00:00', 'Dinner', 'Server'),
---     (28, '2024-11-18', 'Monday', '09:00:00', '17:00:00', 'Morning', 'Head Chef'),
---     (29, '2024-11-18', 'Thursday', '16:00:00', '20:00:00', 'Dinner', 'Pastry Chef'),
---     (30, '2024-11-18', 'Wednesday', '08:00:00', '16:00:00', 'Morning', 'Sous Chef'),
---     (31, '2024-11-18', 'Friday', '12:00:00', '20:00:00', 'Dinner', 'Line Cook'),
---     (18, '2024-11-18', 'Saturday', '10:00:00', '18:00:00', 'Morning', 'Server'),
---     (32, '2024-11-18', 'Sunday', '08:00:00', '16:00:00', 'Dinner', 'Host'),
---     (45, '2024-11-18', 'Sunday', '08:00:00', '16:00:00', 'Morning', 'Server');
-
 -- Insert data into Clocked_Times table
-INSERT INTO Clocked_Times (EmployeeID, ClockedStart, ClockedEnd)
+INSERT INTO Clocked_Times (LocationID, EmployeeID, ClockedStart, ClockedEnd)
 VALUES
-    (32, '2024-10-22 08:28:00', '2024-10-22 19:47:00'),
-    (18, '2024-10-23 09:10:00', '2024-10-23 16:50:00'), 
-    (45, '2024-10-24 10:10:00', '2024-10-24 18:20:00'), 
-    (28, '2024-10-25 12:35:00', '2024-10-25 21:50:00');
+    (5, 28, '2024-11-18 09:00:00', '2024-11-18 17:00:00'),
+    (6, 29, '2024-11-18 16:00:00', '2024-11-18 20:00:00'), 
+    (7, 30, '2024-11-18 08:00:00', '2024-11-18 16:00:00'), 
+    (8, 31, '2024-11-18 12:00:00', '2024-11-18 20:00:00');
 
 -- Insert data into Cook table
 INSERT INTO Cook (EmployeeID, fname, lname, Specialty)
@@ -87,34 +86,20 @@ VALUES
     (1, 4, 18), (2, 4, 18), (3, 2, 18), (4, 6, 45), (5, 2, 45), (6, 2, 45);  
 
 -- Insert data into Waitlist table
-INSERT INTO Waitlist (WaitlistID, WaitName, PhoneNumber, PartySize, HostID)
+INSERT INTO Waitlist (LocationID, WaitlistID, WaitName, PhoneNumber, PartySize, HostID)
 VALUES
-    (94, 'Marco', '(555) 123-4567', 4, 32),
-    (95, 'Reyna', '(555) 987-6543', 2, 32),
-    (96, 'Stephen', '(555) 456-7890', 3, 32),
-    (97, 'Daphne', '(555) 321-0987', 5, 32);
+    (5, 94, 'Marco', '(555) 123-4567', 4, 32),
+    (6, 95, 'Reyna', '(555) 987-6543', 2, 32),
+    (7, 96, 'Stephen', '(555) 456-7890', 3, 32),
+    (8, 97, 'Daphne', '(555) 321-0987', 5, 32);
 
 -- Insert data into Reservation table
-INSERT INTO Reservation (ResID, ResName, ResInfo, HostID)
+INSERT INTO Reservation (LocationID, ResID, ResName, ResInfo, ResSize, HostID)
 VALUES
-    (8, 'Eric', '2025-01-14 18:00:00', 32),
-    (9, 'Maria', '2025-01-15 19:00:00', 32), 
-    (10, 'Lucas', '2025-01-16 20:00:00', 32),
-    (11, 'Nina', '2025-01-17 21:00:00', 32);
-
--- Insert data into Location table
-INSERT INTO Location (LocationID, Address, Region)
-VALUES
-    (5, '4172 Thrash Trail, Dallas, TX', 'North Texas'),
-    (6, '500 Elm St, Austin, TX', 'Central Texas'), 
-    (7, '202 Pine Ln, Houston, TX', 'South Texas'), 
-    (8, '303 Sunset Blvd, San Antonio, TX', 'West Texas');
-
--- Insert data into Works_at table
-INSERT INTO Works_at (EmployeeID, LocationID)
-VALUES
-    (28, 5), (28, 6), (29, 5), (29, 6), (30, 6), 
-    (30, 7), (30, 8), (31, 7), (32, 7), (18, 8), (45, 5);
+    (5, 8, 'Eric', '2025-01-14 18:00:00', 5, 32),
+    (6, 9, 'Maria', '2025-01-15 19:00:00', 4, 32), 
+    (7, 10, 'Lucas', '2025-01-16 20:00:00', 10, 32),
+    (8, 11, 'Nina', '2025-01-17 21:00:00', 2, 32);
 
 -- Insert data into Ingredients table
 INSERT INTO Ingredients (IngredientID, IngredientName)

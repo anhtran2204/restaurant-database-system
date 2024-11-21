@@ -44,13 +44,33 @@ CREATE TABLE Schedule (
         ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+CREATE TABLE Location (
+	LocationID		INT 		NOT NULL,
+    Address			VARCHAR(45)	NOT NULL,
+    Region			VARCHAR(25)	NOT NULL,
+    PRIMARY KEY(LocationID)
+);	
+
+CREATE TABLE Works_at (
+  EmployeeID		INT 		NOT NULL,
+  LocationID		INT			NOT NULL,
+  PRIMARY KEY(EmployeeID, LocationID),
+  FOREIGN KEY(EmployeeID) REFERENCES Employees(ID)
+	ON DELETE CASCADE		ON UPDATE CASCADE,
+  FOREIGN KEY(LocationID) REFERENCES Location(LocationID)
+	ON DELETE CASCADE		ON UPDATE CASCADE
+);
+
 CREATE TABLE Clocked_Times (
+    LocationID INT NOT NULL,
     EmployeeID INT NOT NULL,
     ClockedStart TIMESTAMP NOT NULL,
     ClockedEnd TIMESTAMP NOT NULL,
-    PRIMARY KEY (EmployeeID),
-    FOREIGN KEY (EmployeeID) REFERENCES Employees(ID)
-        ON DELETE CASCADE ON UPDATE CASCADE,
+    PRIMARY KEY(EmployeeID, LocationID),
+    FOREIGN KEY(EmployeeID) REFERENCES Employees(ID)
+        ON DELETE CASCADE		ON UPDATE CASCADE,
+    FOREIGN KEY(LocationID) REFERENCES Location(LocationID)
+        ON DELETE CASCADE		ON UPDATE CASCADE,
     CONSTRAINT CHK_TIME CHECK (ClockedStart < ClockedEnd)
 );
 
@@ -84,42 +104,32 @@ CREATE TABLE RTable (
 );
 
 CREATE TABLE Waitlist (
+    LocationID INT NOT NULL,
     WaitlistID INT NOT NULL,
     WaitName VARCHAR(15) NOT NULL,
     PhoneNumber VARCHAR(14) NOT NULL, -- For formatted phone numbers like (###) ###-####
     PartySize INT NOT NULL, -- To store the size of the party
     HostID INT NOT NULL,
-    PRIMARY KEY (WaitlistID),
+    PRIMARY KEY (WaitlistID, LocationID),
+    FOREIGN KEY (LocationID) REFERENCES Location(LocationID)
+        ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (HostID) REFERENCES Employees(ID)
         ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 
 CREATE TABLE Reservation (
+    LocationID INT NOT NULL,
     ResID INT NOT NULL,
     ResName VARCHAR(15) NOT NULL,
     ResInfo TIMESTAMP NOT NULL,
+    ResSize INT NOT NULL,
     HostID INT NOT NULL,
-    PRIMARY KEY (ResID),
+    PRIMARY KEY (ResID, LocationID),
+    FOREIGN KEY (LocationID) REFERENCES Location(LocationID)
+        ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (HostID) REFERENCES Employees(ID)
         ON DELETE CASCADE ON UPDATE CASCADE
-);
-
-CREATE TABLE Location (
-	LocationID		INT 		NOT NULL,
-    Address			VARCHAR(45)	NOT NULL,
-    Region			VARCHAR(25)	NOT NULL,
-    PRIMARY KEY(LocationID)
-);	
-
-CREATE TABLE Works_at (
-  EmployeeID		INT 		NOT NULL,
-  LocationID		INT			NOT NULL,
-  PRIMARY KEY(EmployeeID, LocationID),
-  FOREIGN KEY(EmployeeID) REFERENCES Employees(ID)
-	ON DELETE CASCADE		ON UPDATE CASCADE,
-  FOREIGN KEY(LocationID) REFERENCES Location(LocationID)
-	ON DELETE CASCADE		ON UPDATE CASCADE
 );
 
 CREATE TABLE Ingredients (

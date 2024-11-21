@@ -25,6 +25,9 @@
     <div class="container">
         <h2>Reservation Form</h2>
         <form id="reservationForm">
+            <label for="locationID">Location ID:</label>
+            <input type="number" id="locationID" name="locationID" required>
+
             <label for="resID">Reservation ID:</label>
             <input type="number" id="resID" name="resID" required>
 
@@ -34,6 +37,9 @@
             <label for="resInfo">Reservation Date & Time:</label>
             <input type="datetime-local" id="resInfo" name="resInfo" required>
 
+            <label for="partySize">Party Size:</label>
+            <input type="number" id="partySize" required>
+
             <label for="hostID">Host ID:</label>
             <input type="number" id="hostID" name="hostID" required>
 
@@ -42,22 +48,35 @@
 
         <h3 style="display: inline;">Reservation List</h3>
 
-        <!-- Sorting dropdown -->
-        <div style="float: right; margin-right: 10px;">
-            <label for="sortBy" style="margin-right: 5px;">Sort By:</label>
-            <select id="sortBy" onchange="fetchReservations()" style="padding: 5px; font-size: 14px;">
-                <option value="ResID">Reservation ID</option>
-                <option value="ResName">Name</option>
-                <option value="ResInfo">Date & Time</option>
-            </select>
+        <div id="utility-container">
+            <!-- Location dropdown -->
+            <div style="margin-bottom: 15px;">
+                <label for="locationFilter">Choose Location:</label>
+                <select id="locationFilter" onchange="fetchReservations()">
+                    <option value="" disabled selected>Select a Location</option>
+                </select>
+            </div>
+            <!-- Sorting dropdown -->
+            <div style="float: right; margin-right: 10px;">
+                <label for="sortBy" style="margin-right: 5px;">Sort By:</label>
+                <select id="sortBy" onchange="fetchReservations()" style="padding: 5px; font-size: 14px;">
+                    <option value="LocationID">Location ID</option>
+                    <option value="ResID">Reservation ID</option>
+                    <option value="ResName">Name</option>
+                    <option value="ResInfo">Date & Time</option>
+                    <option value="ResSize">Party Size</option>
+                </select>
+            </div>
         </div>
 
         <table id="reservationTable">
             <thead>
                 <tr>
+                    <th>Location ID</th>
                     <th>Reservation ID</th>
                     <th>Name</th>
                     <th>Date & Time</th>
+                    <th>Party Size</th>
                     <th>Host ID</th>
                     <th>Actions</th>
                 </tr>
@@ -73,6 +92,9 @@
             <span class="close-btn" onclick="closeEditReservationModal()">&times;</span>
             <h3>Edit Reservation</h3>
             <form id="editReservationForm">
+                <label for="editLocationID">Location ID:</label>
+                <input type="number" id="editLocationID" name="locationID" required>
+
                 <label for="editResID">Reservation ID:</label>
                 <input type="number" id="editResID" name="resID" readonly>
 
@@ -81,6 +103,9 @@
 
                 <label for="editResInfo">Reservation Date & Time:</label>
                 <input type="datetime-local" id="editResInfo" name="resInfo" required>
+
+                <label for="editResSize">Party Size:</label>
+                <input type="number" id="editResSize" required>
 
                 <label for="editHostID">Host ID:</label>
                 <input type="number" id="editHostID" name="hostID" required>

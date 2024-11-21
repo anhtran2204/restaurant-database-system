@@ -26,6 +26,7 @@ function fetchMenuItems() {
 
 function saveMenuItem() {
     const menuData = {
+        ItemID: document.getElementById('itemID').value,
         Mname: document.getElementById('mname').value,
         Price: document.getElementById('price').value,
         Recipe: document.getElementById('recipe').value,
@@ -54,6 +55,7 @@ function editMenuItem(itemID) {
         .then(response => response.json())
         .then(item => {
             if (item) {
+                document.getElementById('editItemID').value = item.ItemID;
                 document.getElementById('editMname').value = item.Mname;
                 document.getElementById('editPrice').value = item.Price;
                 document.getElementById('editRecipe').value = item.Recipe || '';
@@ -67,9 +69,9 @@ function editMenuItem(itemID) {
 }
 
 function submitEditMenu() {
-    const mname = document.getElementById('editMname').value;
-
+    const itemID = document.getElementById('editItemID').value;
     const updatedMenuData = {
+        Mname: document.getElementById('editMname').value,
         Price: parseFloat(document.getElementById('editPrice').value),
         Recipe: document.getElementById('editRecipe').value || '',
         Descr: document.getElementById('editDescr').value || ''
@@ -78,7 +80,7 @@ function submitEditMenu() {
     fetch(`/api/menu/${itemID}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedMenuData)
+        body: JSON.stringify({ ...updatedMenuData, itemID})
     })
         .then(response => response.json())
         .then(data => {
@@ -110,19 +112,22 @@ function closeEditMenuModal() {
 }
 
 function deleteMenuItem(itemID) {
-    fetch(`/api/menu/${itemID}`, {
-        method: 'DELETE'
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === 'success') {
-            alert('Menu item deleted successfully');
-            fetchMenuItems();
-        } else {
-            alert('Error deleting menu item');
-        }
-    })
-    .catch(error => console.error('Error deleting menu item:', error));
+    if (confirm('Are you sure you want to delete this menu item?')) {
+        fetch(`/api/menu/${itemID}`, {
+            method: 'DELETE'
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Menu item deleted successfully');
+                    fetchMenuItems();
+                } else {
+                    alert('Error deleting menu item');
+                }
+            })
+            .catch(error => console.error('Error deleting menu item:', error));
+    }
 }
 
+// Load locations on page load
 fetchMenuItems();

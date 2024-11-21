@@ -25,6 +25,9 @@
     <div class="container">
         <h2>Menu Management</h2>
         <form id="menuForm">
+            <label for="itemID">Item ID:</label>
+            <input type="number" id="itemID" name="itemID" required>
+
             <label for="mname">Menu Item Name:</label>
             <input type="text" id="mname" name="mname" required>
 
@@ -41,6 +44,16 @@
         </form>
 
         <h3 style="display: inline;">Menu Item List</h3>
+
+        <!-- Search bar -->
+        <!-- <div style="float: right; margin-right: 10px;">
+            <label for="search">Search:</label>
+            <input type="text" id="search" oninput="fetchMenuItems()">
+
+            <button type="button" onclick="fetchMenuItems()">Search</button>
+
+            <button type="button" onclick="fetchMenuItems()">Reset</button>
+        </div> -->
 
         <!-- Sorting dropdown -->
         <div style="float: right; margin-right: 10px;">
@@ -74,6 +87,9 @@
             <span class="close-btn" onclick="closeEditMenuModal()">&times;</span>
             <h3>Edit Menu Item</h3>
             <form id="editMenuForm">
+                <label for="editItemID">Item ID:</label>
+                <input type="number" id="editItemID" name="itemID" readonly>
+
                 <label for="editMname">Menu Item Name:</label>
                 <input type="text" id="editMname" name="mname" readonly>
 

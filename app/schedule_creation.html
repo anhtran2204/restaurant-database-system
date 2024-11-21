@@ -64,9 +64,19 @@
             <button onclick="goToThisWeek()">This Week</button>
             <button onclick="changeWeek(1)">Next &#9654;</button>
         </div>
-
-        <!-- Generate Schedule Button -->
+        
+        <div id="utility-container">
+            <!-- Generate Schedule Button -->
         <button id="generateScheduleBtn" onclick="showGenerateScheduleModal()">Generate Schedule</button>
+
+            <!-- Location dropdown -->
+            <div style="margin-bottom: 15px;">
+                <label for="locationFilter">Choose Location:</label>
+                <select id="locationFilter" onchange="fetchSchedule()">
+                    <option value="" disabled selected>Select a Location</option>
+                </select>
+            </div>
+        </div>
 
         <!-- Calendar Table -->
         <table id="scheduleTable" class="calendar-table">
@@ -103,6 +113,31 @@
                 <div id="Sunday" class="tabcontent scrollable-list" style="display: none;"></div>
             </div>
             <button onclick="generateSchedule()">Generate</button>
+        </div>
+    </div>  
+    
+    <div id="editScheduleModal" class="popup-overlay" style="display: none;">
+        <div class="popup-content">
+            <span class="close-btn" onclick="closeEditScheduleModal()">&times;</span>
+            <h3>Edit Schedule</h3>
+            <form id="editScheduleForm" onsubmit="updateSchedule(event)">
+                <input type="hidden" id="editEmployeeID">
+                <input type="hidden" id="editDayOfWeek">
+    
+                <label for="editShiftType">Shift Type:</label>
+                <input type="text" id="editShiftType" required>
+    
+                <label for="editStartTime">Start Time:</label>
+                <input type="time" id="editStartTime" required>
+    
+                <label for="editEndTime">End Time:</label>
+                <input type="time" id="editEndTime" required>
+    
+                <label for="editPosition">Position:</label>
+                <input type="text" id="editPosition">
+    
+                <button type="submit">Update</button>
+            </form>
         </div>
     </div>    
     

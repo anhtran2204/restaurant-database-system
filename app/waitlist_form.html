@@ -25,6 +25,9 @@
     <div class="container">
         <h2>Waitlist Form</h2>
         <form id="waitlistForm">
+            <label for="locationID">Location ID:</label>
+            <input type="number" id="locationID" required>
+
             <label for="waitlistID">Waitlist ID:</label>
             <input type="number" id="waitlistID" required>
         
@@ -45,19 +48,31 @@
         
         <h3 style="display: inline;">Waitlist</h3>
 
-        <!-- Sorting dropdown -->
-        <div style="float: right; margin-right: 10px;">
-            <label for="sortBy" style="margin-right: 5px;">Sort By:</label>
-            <select id="sortBy" onchange="fetchWaitlist()" style="padding: 5px; font-size: 14px;">
-                <option value="WaitlistID">Waitlist ID</option>
-                <option value="WaitName">Name</option>
-                <option value="PartySize">Party Size</option>
-            </select>
+        <div id="utility-container">
+            <!-- Location dropdown -->
+            <div style="margin-bottom: 15px;">
+                <label for="locationFilter">Choose Location:</label>
+                <select id="locationFilter" onchange="fetchWaitlist()">
+                    <option value="" disabled selected>Select a Location</option>
+                </select>
+            </div>
+
+            <!-- Sorting dropdown -->
+            <div style="float: right; margin-right: 10px;">
+                <label for="sortBy" style="margin-right: 5px;">Sort By:</label>
+                <select id="sortBy" onchange="fetchWaitlist()" style="padding: 5px; font-size: 14px;">
+                    <option value="LocationID">Location ID</option>
+                    <option value="WaitlistID">Waitlist ID</option>
+                    <option value="WaitName">Name</option>
+                    <option value="PartySize">Party Size</option>
+                </select>
+            </div>
         </div>
 
         <table id="waitlistTable">
             <thead>
                 <tr>
+                    <th>Location ID</th>
                     <th>Waitlist ID</th>
                     <th>Name</th>
                     <th>Phone Number</th>
@@ -79,6 +94,9 @@
             <span class="close-btn" onclick="closeEditWaitlistModal()">&times;</span>
             <h3>Edit Waitlist Entry</h3>
             <form id="editWaitlistForm">
+                <label for="editLocationID">Location ID:</label>
+                <input type="number" id="editLocationID" readonly>
+
                 <label for="editWaitlistID">Waitlist ID:</label>
                 <input type="number" id="editWaitlistID" readonly>
 

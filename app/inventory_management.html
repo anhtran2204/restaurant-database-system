@@ -25,14 +25,14 @@
     <div class="container">
         <h2>Inventory Management</h2>
         <form id="inventoryForm">
+            <label for="locationID">Location ID:</label>
+            <input type="number" id="locationID" name="locationID" required>
+
             <label for="ingredientID">Ingredient ID:</label>
-            <input type="text" id="ingredientNID" name="ingredientNID" required>
+            <input type="text" id="ingredientID" name="ingredientID" required>
 
             <label for="ingredientName">Ingredient Name:</label>
             <input type="text" id="ingredientName" name="ingredientName" required>
-
-            <label for="locationID">Location ID:</label>
-            <input type="number" id="locationID" name="locationID" required>
 
             <label for="quantity">Quantity:</label>
             <input type="number" id="quantity" name="quantity" required>
@@ -45,21 +45,31 @@
 
         <h3 style="display: inline;">Inventory List</h3>
 
-        <!-- Sorting dropdown -->
-        <div style="float: right; margin-right: 10px;">
-            <label for="sortBy" style="margin-right: 5px;">Sort By:</label>
-            <select id="sortBy" onchange="fetchInventory()" style="padding: 5px; font-size: 14px;">
-                <option value="IngredientID">Ingredient ID</option>
-                <option value="IngredientName">Ingredient Name</option>
-                <option value="LocationID">Location ID</option>
-                <option value="Quantity">Quantity</option>
-                <option value="Expiration">Expiration Date</option>
-            </select>
+        <div id="utility-container">
+            <!-- Location dropdown -->
+            <div style="margin-bottom: 15px;">
+                <label for="locationFilter">Choose Location:</label>
+                <select id="locationFilter" onchange="fetchInventory()">
+                    <option value="" disabled selected>Select a Location</option>
+                </select>
+            </div>
+            <!-- Sorting dropdown -->
+            <div style="float: right; margin-right: 10px;">
+                <label for="sortBy" style="margin-right: 5px;">Sort By:</label>
+                <select id="sortBy" onchange="fetchInventory()" style="padding: 5px; font-size: 14px;">
+                    <option value="LocationID">LocationID</option>
+                    <option value="IngredientID">Ingredient ID</option>
+                    <option value="IngredientName">Ingredient Name</option>
+                    <option value="Quantity">Quantity</option>
+                    <option value="Expiration">Expiration Date</option>
+                </select>
+            </div>
         </div>
         
         <table id="inventoryTable">
             <thead>
                 <tr>
+                    <th>Location ID</th>
                     <th>Ingredient ID</th>
                     <th>Ingredient Name</th>
                     <th>Location ID</th>
@@ -79,14 +89,14 @@
             <span class="close-btn" onclick="closeEditInventoryModal()">&times;</span>
             <h3>Edit Inventory</h3>
             <form id="editInventoryForm">
+                <label for="editLocationID">Location ID:</label>
+                <input type="number" id="editLocationID" name="locationID" readonly>
+
                 <label for="editIngredientID">Ingredient ID:</label>
                 <input type="text" id="editIngredientID" name="ingredientID" readonly>
 
                 <label for="editIngredientName">Ingredient Name:</label>
                 <input type="text" id="editIngredientName" name="ingredientName" required>
-
-                <label for="editLocationID">Location ID:</label>
-                <input type="number" id="editLocationID" name="locationID" readonly>
 
                 <label for="editQuantity">Quantity:</label>
                 <input type="number" id="editQuantity" name="quantity" required>

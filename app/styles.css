@@ -119,6 +119,13 @@ label[for="sortBy"] {
     margin-right: 5px;
 }
 
+#utility-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
 /* Main Content */
 main.welcome-container {
     flex-grow: 1;

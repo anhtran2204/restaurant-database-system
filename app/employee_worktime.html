@@ -25,6 +25,9 @@
     <div class="container">
         <h2>Employee Worktime</h2>
         <form id="worktimeForm">
+            <label for="locationID">Location ID:</label>
+            <input type="number" id="locationID" name="locationID" required>
+
             <label for="employeeID">Employee ID:</label>
             <input type="number" id="employeeID" name="employeeID" required>
     
@@ -45,18 +48,30 @@
     
         <h3 style="display: inline;">Worktime Records</h3>
 
-        <!-- Sorting dropdown -->
-        <div style="float: right; margin-right: 10px;">
-            <label for="sortBy" style="margin-right: 5px;">Sort By:</label>
-            <select id="sortBy" onchange="fetchWorktime()" style="padding: 5px; font-size: 14px;">
-                <option value="EmpID">ID</option>
-                <option value="FullName">Name</option>
-            </select>
+        <div id="utility-container">
+            <!-- Location dropdown -->
+            <div style="margin-bottom: 15px;">
+                <label for="locationFilter">Choose Location:</label>
+                <select id="locationFilter" onchange="fetchWorktime()">
+                    <option value="" disabled selected>Select a Location</option>
+                </select>
+            </div>
+
+            <!-- Sorting dropdown -->
+            <div style="float: right; margin-right: 10px;">
+                <label for="sortBy" style="margin-right: 5px;">Sort By:</label>
+                <select id="sortBy" onchange="fetchWorktime()" style="padding: 5px; font-size: 14px;">
+                    <option value="LocationID">Location ID</option>
+                    <option value="EmpID">ID</option>
+                    <option value="FullName">Name</option>
+                </select>
+            </div>
         </div>
         
         <table id="worktimeTable">
             <thead>
                 <tr>
+                    <th>Location ID</th>
                     <th>Employee ID</th>
                     <th>Employee Name</th>
                     <th>Clocked Start</th>
@@ -74,6 +89,9 @@
             <span class="close-btn" onclick="closeEditWorktimeModal()">&times;</span>
             <h3>Edit Worktime</h3>
             <form id="editWorktimeForm">
+                <label for="editLocationID">Location ID:</label>
+                <input type="text" id="editLocationID" name="locationID" readonly>
+                
                 <label for="editEmployeeID">Employee ID:</label>
                 <input type="text" id="editEmployeeID" name="employeeID" readonly>
 

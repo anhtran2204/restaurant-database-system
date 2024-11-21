@@ -1,6 +1,36 @@
+function loadLocationFilter() {
+    fetch(`/api/inventory/locations`)
+        .then(response => response.json())
+        .then(locations => {
+            const locationFilter = document.getElementById('locationFilter');
+            locationFilter.innerHTML = ''; // Clear the existing options
+
+            // Add an option for all locations
+            const allOption = document.createElement('option');
+            allOption.value = '';
+            allOption.textContent = 'All Locations';
+            locationFilter.appendChild(allOption);
+            
+            locations.forEach(location => {
+                const option = document.createElement('option');
+                option.value = location.LocationID;
+                option.textContent = `Location ${location.LocationID}`;
+                locationFilter.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Error fetching locations:', error));
+}
+
 function fetchInventory() {
     const sortBy = document.getElementById('sortBy').value; // Get selected sorting criteria
-    fetch(`/api/inventory?sortBy=${sortBy}`)
+    const locationID = document.getElementById('locationFilter').value; // Get selected location
+    
+    // Build the API URL
+    const apiUrl = locationID
+        ? `/api/inventory?sortBy=${sortBy}&locationID=${locationID}`
+        : `/api/inventory?sortBy=${sortBy}`;
+
+    fetch(apiUrl)
         .then(response => response.json())
         .then(data => {
             const tbody = document.querySelector('#inventoryTable tbody');
@@ -8,6 +38,7 @@ function fetchInventory() {
             data.forEach(item => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
+                    <td>${item.LocationID}</td>
                     <td>${item.IngredientID}</td>
                     <td>${item.IngredientName}</td>
                     <td>${item.LocationID}</td>
@@ -30,9 +61,9 @@ function fetchInventory() {
 
 function saveInventory() {
     const inventoryData = {
+        LocationID: document.getElementById('locationID').value,
         IngredientID: document.getElementById('ingredientID').value,
         IngredientName: document.getElementById('ingredientName').value,
-        LocationID: document.getElementById('locationID').value,
         Quantity: parseInt(document.getElementById('quantity').value, 10),
         Expiration: document.getElementById('expiration').value
     };
@@ -77,6 +108,7 @@ function submitEditInventory() {
     const locationID = document.getElementById('editLocationID').value;
 
     const updatedInventoryData = {
+        IngredientName: document.getElementById('editIngredientName').value,
         Quantity: parseInt(document.getElementById('editQuantity').value, 10),
         Expiration: document.getElementById('editExpiration').value
     };
@@ -84,7 +116,7 @@ function submitEditInventory() {
     fetch(`/api/inventory/${ingredientID}/${locationID}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedInventoryData)
+        body: JSON.stringify({ ...updatedInventoryData, ingredientID, locationID })
     })
         .then(response => response.json())
         .then(data => {
@@ -130,5 +162,7 @@ function deleteInventory(ingredientID, locationID) {
     })
     .catch(error => console.error('Error deleting inventory item:', error));
 }
+// Load locations on page load
+loadLocationFilter();
 
 fetchInventory();
