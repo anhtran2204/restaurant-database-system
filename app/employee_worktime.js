@@ -1,5 +1,6 @@
 function fetchWorktime() {
-    fetch('/api/worktimes')
+    const sortBy = document.getElementById('sortBy').value; // Get selected sorting criteria
+    fetch(`/api/worktimes?sortBy=${sortBy}`)
         .then(response => response.json())
         .then(data => {
             const tbody = document.querySelector('#worktimeTable tbody');

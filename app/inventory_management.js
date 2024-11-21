@@ -1,5 +1,6 @@
 function fetchInventory() {
-    fetch('/api/inventory')
+    const sortBy = document.getElementById('sortBy').value; // Get selected sorting criteria
+    fetch(`/api/inventory?sortBy=${sortBy}`)
         .then(response => response.json())
         .then(data => {
             const tbody = document.querySelector('#inventoryTable tbody');

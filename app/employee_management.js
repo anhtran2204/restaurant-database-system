@@ -2,7 +2,8 @@ const apiUrl = '/api/employees';
 
 // Fetch and display all employees
 function fetchEmployees() {
-    fetch(apiUrl)
+    const sortBy = document.getElementById('sortBy').value;
+    fetch(`${apiUrl}?sortBy=${sortBy}`)
         .then(response => response.json())
         .then(data => {
             const tbody = document.querySelector('#employeeTable tbody');

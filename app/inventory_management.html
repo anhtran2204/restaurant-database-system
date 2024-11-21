@@ -43,7 +43,20 @@
             <button type="button" onclick="saveInventory()">Save Inventory</button>
         </form>
 
-        <h3>Inventory List</h3>
+        <h3 style="display: inline;">Inventory List</h3>
+
+        <!-- Sorting dropdown -->
+        <div style="float: right; margin-right: 10px;">
+            <label for="sortBy" style="margin-right: 5px;">Sort By:</label>
+            <select id="sortBy" onchange="fetchInventory()" style="padding: 5px; font-size: 14px;">
+                <option value="IngredientID">Ingredient ID</option>
+                <option value="IngredientName">Ingredient Name</option>
+                <option value="LocationID">Location ID</option>
+                <option value="Quantity">Quantity</option>
+                <option value="Expiration">Expiration Date</option>
+            </select>
+        </div>
+        
         <table id="inventoryTable">
             <thead>
                 <tr>

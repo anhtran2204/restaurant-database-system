@@ -75,7 +75,22 @@
             <button type="button" onclick="saveEmployee()">Save Employee</button>
         </form>
 
-        <h3>Employee List</h3>
+        <h3 style="display: inline;">Employee List</h3>
+
+        <!-- Sorting dropdown -->
+        <div style="float: right; margin-right: 10px;">
+            <label for="sortBy" style="margin-right: 5px;">Sort By:</label>
+            <select id="sortBy" onchange="fetchEmployees()" style="padding: 5px; font-size: 14px;">
+                <option value="ID">ID</option>
+                <option value="fname">First Name</option>
+                <option value="lname">Last Name</option>
+                <option value="dob">Date of Birth</option>
+                <option value="hoursPerWeek">Hours/Week</option>
+                <option value="Salary">Salary</option>
+                <option value="Rate">Rate</option>
+            </select>
+        </div>
+        
         <table id="employeeTable">
             <thead>
                 <tr>

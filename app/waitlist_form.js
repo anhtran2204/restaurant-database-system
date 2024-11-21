@@ -1,5 +1,6 @@
 function fetchWaitlist() {
-    fetch('/api/waitlist')
+    const sortBy = document.getElementById('sortBy').value; // Get selected sorting criteria
+    fetch(`/api/waitlist?sortBy=${sortBy}`)
         .then(response => response.json())
         .then(data => {
             const tbody = document.querySelector('#waitlistTable tbody');

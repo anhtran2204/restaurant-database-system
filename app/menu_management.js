@@ -1,5 +1,6 @@
 function fetchMenuItems() {
-    fetch('/api/menu')
+    const sortBy = document.getElementById('sortBy').value; // Get selected sorting criteria
+    fetch(`/api/menu?sortBy=${sortBy}`)
         .then(response => response.json())
         .then(data => {
             const tbody = document.querySelector('#menuTable tbody');

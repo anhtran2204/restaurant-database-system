@@ -104,6 +104,21 @@ div#calendarControls button {
     margin: 0 0.5rem;
 }
 
+/* Dropdown styling for sorting */
+#sortBy {
+    font-size: 14px;
+    padding: 5px;
+    margin-right: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+label[for="sortBy"] {
+    font-size: 14px;
+    font-weight: bold;
+    margin-right: 5px;
+}
+
 /* Main Content */
 main.welcome-container {
     flex-grow: 1;

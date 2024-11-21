@@ -1,6 +1,8 @@
 // Fetch and display all reservations
 function fetchReservations() {
-    fetch('/api/reservations')
+    const sortBy = document.getElementById('sortBy').value; // Get selected sorting criteria
+    fetch(`/api/reservations?sortBy=${sortBy}`)
+
         .then(response => response.json())
         .then(data => {
             const tbody = document.querySelector('#reservationTable tbody');

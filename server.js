@@ -27,11 +27,24 @@ db.connect((err) => {
 
 // CRUD for Employees
 app.get('/api/employees', (req, res) => {
+    const sortBy = req.query.sortBy || 'ID'; // Default to sorting by ID if no sort parameter is given
+    const validSortColumns = ['ID', 'fname', 'lname', 'dob', 'hoursPerWeek', 'Salary', 'Rate'];
+
+    // If the sortBy parameter is not valid, default to 'ID'
+    if (!validSortColumns.includes(sortBy)) {
+        return res.status(400).json({ error: 'Invalid sort criteria' });
+    }
+
     const sql = `
-        SELECT * FROM Employees e
+        SELECT * FROM Employees
+        ORDER BY ${mysql.escapeId(sortBy)} ASC;
     `;
+
     db.query(sql, (err, results) => {
-        if (err) return res.status(500).json({ error: 'Database query failed' });
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: 'Database query failed' });
+        }
         res.json(results);
     });
 });
@@ -153,6 +166,14 @@ app.delete('/api/employees/:id', (req, res) => {
 
 // CRUD for Clocked_Times
 app.get('/api/worktimes', (req, res) => {
+    const sortBy = req.query.sortBy || 'EmpID'; // Default to sorting by ID
+    const validSortColumns = ['EmpID', 'FullName'];
+
+    // Validate the sortBy parameter
+    if (!validSortColumns.includes(sortBy)) {
+        return res.status(400).json({ error: 'Invalid sort criteria' });
+    }
+
     const sql = `
         SELECT 
             Clocked_Times.EmployeeID AS EmpID,
@@ -160,12 +181,13 @@ app.get('/api/worktimes', (req, res) => {
             ClockedStart,
             ClockedEnd
         FROM Clocked_Times
-        JOIN Employees ON Clocked_Times.EmployeeID = Employees.ID;
+        JOIN Employees ON Clocked_Times.EmployeeID = Employees.ID
+        ORDER BY ${mysql.escapeId(sortBy)} ASC;
     `;
 
     db.query(sql, (err, results) => {
         if (err) {
-            console.error(err);
+            console.error('Error fetching worktimes:', err);
             return res.status(500).json({ error: 'Database query failed.' });
         }
         res.json(results);
@@ -389,8 +411,25 @@ app.delete('/api/schedule/:id', (req, res) => {
 
 // CRUD for Menu_item
 app.get('/api/menu', (req, res) => {
-    db.query('SELECT * FROM Menu_item', (err, results) => {
-        if (err) throw err;
+    const sortBy = req.query.sortBy || 'ItemID'; // Default to sorting by Item ID
+    const validSortColumns = ['ItemID', 'Mname', 'Price'];
+
+    // Validate the sortBy parameter
+    if (!validSortColumns.includes(sortBy)) {
+        return res.status(400).json({ error: 'Invalid sort criteria' });
+    }
+
+    const sql = `
+        SELECT ItemID, Mname, Price, Recipe, Descr
+        FROM Menu_item
+        ORDER BY ${mysql.escapeId(sortBy)} ASC;
+    `;
+
+    db.query(sql, (err, results) => {
+        if (err) {
+            console.error('Error fetching menu items:', err);
+            return res.status(500).json({ error: 'Database query failed.' });
+        }
         res.json(results);
     });
 });
@@ -461,8 +500,25 @@ app.delete('/api/menu/:ItemID', (req, res) => {
 
 // CRUD for Reservation
 app.get('/api/reservations', (req, res) => {
-    db.query('SELECT ResID, ResName, ResInfo, HostID FROM Reservation', (err, results) => {
-        if (err) throw err;
+    const sortBy = req.query.sortBy || 'ResID'; // Default to sorting by Reservation ID
+    const validSortColumns = ['ResID', 'ResName', 'ResInfo'];
+
+    // Validate the sortBy parameter
+    if (!validSortColumns.includes(sortBy)) {
+        return res.status(400).json({ error: 'Invalid sort criteria' });
+    }
+
+    const sql = `
+        SELECT ResID, ResName, ResInfo, HostID
+        FROM Reservation
+        ORDER BY ${mysql.escapeId(sortBy)} ASC;
+    `;
+
+    db.query(sql, (err, results) => {
+        if (err) {
+            console.error('Error fetching reservations:', err);
+            return res.status(500).json({ error: 'Database query failed.' });
+        }
         res.json(results);
     });
 });
@@ -533,8 +589,25 @@ app.delete('/api/reservations/:id', (req, res) => {
 
 // CRUD for Waitlist
 app.get('/api/waitlist', (req, res) => {
-    db.query('SELECT * FROM Waitlist', (err, results) => {
-        if (err) throw err;
+    const sortBy = req.query.sortBy || 'WaitlistID'; // Default to sorting by Waitlist ID
+    const validSortColumns = ['WaitlistID', 'WaitName', 'PartySize'];
+
+    // Validate the sortBy parameter
+    if (!validSortColumns.includes(sortBy)) {
+        return res.status(400).json({ error: 'Invalid sort criteria' });
+    }
+
+    const sql = `
+        SELECT WaitlistID, WaitName, PhoneNumber, PartySize, HostID
+        FROM Waitlist
+        ORDER BY ${mysql.escapeId(sortBy)} ASC;
+    `;
+
+    db.query(sql, (err, results) => {
+        if (err) {
+            console.error('Error fetching waitlist:', err);
+            return res.status(500).json({ error: 'Database query failed.' });
+        }
         res.json(results);
     });
 });
@@ -613,7 +686,20 @@ app.delete('/api/waitlist/:id', (req, res) => {
 
 // CRUD for Inventory
 app.get('/api/inventory', (req, res) => {
-    db.query('SELECT * FROM Ingredient_inventory', (err, results) => {
+    const sortBy = req.query.sortBy || 'IngredientID'; // Default to sorting by Ingredient ID
+    const validSortColumns = ['IngredientID', 'IngredientName', 'LocationID', 'Quantity', 'Expiration'];
+
+    // Validate the sortBy parameter
+    if (!validSortColumns.includes(sortBy)) {
+        return res.status(400).json({ error: 'Invalid sort criteria' });
+    }
+
+    const sql = `
+        SELECT * FROM Ingredient_inventory
+        ORDER BY ${mysql.escapeId(sortBy)} ASC;
+    `;
+
+    db.query(sql, (err, results) => {
         if (err) {
             console.error('Error fetching inventory:', err);
             return res.status(500).json({ error: 'Database query failed.' });

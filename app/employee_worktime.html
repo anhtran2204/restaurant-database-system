@@ -43,7 +43,17 @@
             <button type="button" onclick="saveWorktime()">Save Worktime</button>
         </form>
     
-        <h3>Worktime Records</h3>
+        <h3 style="display: inline;">Worktime Records</h3>
+
+        <!-- Sorting dropdown -->
+        <div style="float: right; margin-right: 10px;">
+            <label for="sortBy" style="margin-right: 5px;">Sort By:</label>
+            <select id="sortBy" onchange="fetchWorktime()" style="padding: 5px; font-size: 14px;">
+                <option value="EmpID">ID</option>
+                <option value="FullName">Name</option>
+            </select>
+        </div>
+        
         <table id="worktimeTable">
             <thead>
                 <tr>
