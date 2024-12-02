@@ -282,7 +282,7 @@ function closeEditScheduleModal() {
 
 function removeEmployeeFromSchedule(employeeID, dayOfWeek) {
     if (confirm('Are you sure you want to remove this employee from the schedule?')) {
-        fetch(`/api/schedule`, {
+        fetch(`/api/schedule/${employeeID}/${dayOfWeek}`, {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ employeeID, dayOfWeek, weekStartDate: currentWeekStartDate.toISOString().split('T')[0] })
@@ -300,7 +300,7 @@ function removeEmployeeFromSchedule(employeeID, dayOfWeek) {
     }
 }
 
-function updateSchedule(event) {
+function updateSchedule() {
     event.preventDefault();
 
     const employeeID = document.getElementById('editEmployeeID').value;
@@ -310,7 +310,7 @@ function updateSchedule(event) {
     const endTime = document.getElementById('editEndTime').value;
     const position = document.getElementById('editPosition').value;
 
-    fetch(`/api/schedule`, {
+    fetch(`/api/schedule/${employeeID}/${dayOfWeek}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
